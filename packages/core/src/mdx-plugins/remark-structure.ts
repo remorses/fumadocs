@@ -2,13 +2,13 @@ import Slugger from 'github-slugger';
 import type { Nodes, Root } from 'mdast';
 import { remark } from 'remark';
 import remarkGfm from 'remark-gfm';
-import type { PluggableList, Transformer } from 'unified';
+import remarkStringify from 'remark-stringify';
+import type { PluggableList, Processor, Transformer } from 'unified';
 import { visit } from 'unist-util-visit';
-import { flattenNode } from './remark-utils';
 import type {
-  MdxJsxAttribute,
-  MdxJsxExpressionAttribute,
-  MdxJsxFlowElement,
+    MdxJsxAttribute,
+    MdxJsxExpressionAttribute,
+    MdxJsxFlowElement,
 } from 'mdast-util-mdx-jsx';
 
 interface Heading {
@@ -67,20 +67,23 @@ const slugger = new Slugger();
 /**
  * Attach structured data to VFile, you can access via `vfile.data.structuredData`.
  */
-export function remarkStructure({
-  types = [
-    'heading',
-    'paragraph',
-    'blockquote',
-    'tableCell',
-    'mdxJsxFlowElement',
-  ],
-  allowedMdxAttributes = (node) => {
-    if (!node.name) return false;
+export function remarkStructure(
+  this: Processor,
+  {
+    types = [
+      'heading',
+      'paragraph',
+      'blockquote',
+      'tableCell',
+      'mdxJsxFlowElement',
+    ],
+    allowedMdxAttributes = (node) => {
+      if (!node.name) return false;
 
-    return ['TypeTable', 'Callout'].includes(node.name);
-  },
-}: StructureOptions = {}): Transformer<Root, Root> {
+      return ['TypeTable', 'Callout'].includes(node.name);
+    },
+  }: StructureOptions = {},
+): Transformer<Root, Root> {
   if (Array.isArray(allowedMdxAttributes)) {
     const arr = allowedMdxAttributes;
     allowedMdxAttributes = (_node, attribute) =>
@@ -91,6 +94,8 @@ export function remarkStructure({
     const arr = types;
     types = (node) => arr.includes(node.type);
   }
+
+  const processor = this;
 
   return (node, file) => {
     slugger.reset();
@@ -119,7 +124,7 @@ export function remarkStructure({
         element.data ||= {};
         element.data.hProperties ||= {};
         const properties = element.data.hProperties;
-        const content = flattenNode(element).trim();
+        const content = processor.stringify(element).toString().trim();
         const id = properties.id ?? slugger.slug(content);
 
         data.headings.push({
@@ -169,7 +174,7 @@ export function remarkStructure({
         return;
       }
 
-      const content = flattenNode(element).trim();
+      const content = processor.stringify(element).toString().trim();
       if (content.length === 0) return;
 
       data.contents.push({
@@ -195,6 +200,7 @@ export function structure(
   const result = remark()
     .use(remarkGfm)
     .use(remarkPlugins)
+    .use(remarkStringify)
     .use(remarkStructure, options)
     .processSync(content);
 
