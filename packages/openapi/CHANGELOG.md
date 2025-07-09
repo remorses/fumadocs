@@ -1,5 +1,38 @@
 # @fuma-docs/openapi
 
+## 9.1.1
+
+### Patch Changes
+
+- dd94271: Fix handling of primitive types in `anyOf`/`allOf`
+- Updated dependencies [a2d7940]
+  - fumadocs-ui@15.6.3
+  - fumadocs-core@15.6.3
+
+## 9.1.0
+
+### Minor Changes
+
+- b60c8ed: **Support Parameter Serialization**
+
+  Maybe need to update your code if you've added custom media adapters.
+
+### Patch Changes
+
+- Updated dependencies [1e50889]
+- Updated dependencies [353c139]
+- Updated dependencies [5844c6f]
+  - fumadocs-ui@15.6.2
+  - fumadocs-core@15.6.2
+
+## 9.0.18
+
+### Patch Changes
+
+- ae38ed0: Fix Scalar `upgrade()` is somehow ignored
+- a35597e: Use new codeblock tab style
+- 8f69e33: Always display collapsible for array items
+
 ## 9.0.17
 
 ### Patch Changes
