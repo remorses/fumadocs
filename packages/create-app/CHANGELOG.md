@@ -1,5 +1,26 @@
 # create-next-docs-app
 
+## 15.6.7
+
+## 15.6.6
+
+### Patch Changes
+
+- 526fd82: Update Tanstack Start & React Router templates to use Fumadocs MDX
+
+## 15.6.5
+
+### Patch Changes
+
+- 619806d: Fix Vite and Tanstack Router configuration warnings
+
+## 15.6.4
+
+### Patch Changes
+
+- a375da3: support passing options
+- a375da3: Update templates
+
 ## 15.6.3
 
 ## 15.6.2

@@ -1,5 +1,51 @@
 # @fuma-docs/openapi
 
+## 9.1.6
+
+### Patch Changes
+
+- Updated dependencies [e9fef34]
+- Updated dependencies [d4a9037]
+- Updated dependencies [6fa1442]
+  - fumadocs-ui@15.6.7
+  - fumadocs-core@15.6.7
+
+## 9.1.5
+
+### Patch Changes
+
+- ec7b9ed: Fix request serialization stripped auth parameters
+- Updated dependencies [2a0b45b]
+- Updated dependencies [5913cc4]
+- Updated dependencies [1b0e9d5]
+- Updated dependencies [79248f6]
+  - fumadocs-ui@15.6.6
+  - fumadocs-core@15.6.6
+
+## 9.1.4
+
+### Patch Changes
+
+- d449bb1: fix `groupBy: route` ignoring curly braces
+- ac33c3c: Add method option and Content-Type header to generated JavaScript code examples
+- Updated dependencies [658fa96]
+  - fumadocs-core@15.6.5
+  - fumadocs-ui@15.6.5
+
+## 9.1.3
+
+### Patch Changes
+
+- Updated dependencies [dca17d7]
+  - fumadocs-ui@15.6.4
+  - fumadocs-core@15.6.4
+
+## 9.1.2
+
+### Patch Changes
+
+- 742c0a6: fix spacing issues
+
 ## 9.1.1
 
 ### Patch Changes

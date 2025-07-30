@@ -1,5 +1,25 @@
 # next-docs-zeta
 
+## 15.6.7
+
+### Patch Changes
+
+- 6fa1442: Support to override `<HideIfEmpty />` scripts nonce with `<HideIfEmptyProvider />`
+
+## 15.6.6
+
+### Patch Changes
+
+- 1b0e9d5: Add mixedbread integration
+
+## 15.6.5
+
+### Patch Changes
+
+- 658fa96: Support custom options for error handling for `remark-image`
+
+## 15.6.4
+
 ## 15.6.3
 
 ## 15.6.2

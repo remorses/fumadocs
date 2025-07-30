@@ -1,5 +1,38 @@
 # next-docs-ui
 
+## 15.6.7
+
+### Patch Changes
+
+- e9fef34: Move sidebar toolbar to top on mobile view
+- d4a9037: improve codeblock diff styles
+- Updated dependencies [6fa1442]
+  - fumadocs-core@15.6.7
+
+## 15.6.6
+
+### Patch Changes
+
+- 2a0b45b: Change sidebar direction
+- 5913cc4: Ignore IME composition to avoid accidental selection
+- 79248f6: Improve type table link icon
+- Updated dependencies [1b0e9d5]
+  - fumadocs-core@15.6.6
+
+## 15.6.5
+
+### Patch Changes
+
+- Updated dependencies [658fa96]
+  - fumadocs-core@15.6.5
+
+## 15.6.4
+
+### Patch Changes
+
+- dca17d7: Improve search dialog consistency
+  - fumadocs-core@15.6.4
+
 ## 15.6.3
 
 ### Patch Changes

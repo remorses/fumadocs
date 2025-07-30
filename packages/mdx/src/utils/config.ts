@@ -3,13 +3,12 @@ import * as path from 'node:path';
 import type {
   DocCollection,
   DocsCollection,
+  GlobalConfig,
   MetaCollection,
 } from '@/config/define';
-import { type GlobalConfig } from '@/config/types';
 import type { ProcessorOptions } from '@mdx-js/mdx';
 import { pathToFileURL } from 'node:url';
 import { buildConfig } from '@/config/build';
-import type { MDXOptions as RemoteMdxOptions } from '@fumadocs/mdx-remote';
 
 export function findConfigFile(): string {
   return path.resolve('source.config.ts');
@@ -18,15 +17,9 @@ export function findConfigFile(): string {
 export interface LoadedConfig {
   collections: Map<string, DocCollection | MetaCollection | DocsCollection>;
 
-  global?: GlobalConfig;
+  global: GlobalConfig;
 
-  _mdx_loader?: {
-    cachedOptions?: ProcessorOptions;
-  };
-
-  _mdx_async?: {
-    cachedMdxOptions?: RemoteMdxOptions;
-  };
+  getDefaultMDXOptions(): Promise<ProcessorOptions>;
 }
 
 let cache: {
@@ -80,13 +73,10 @@ export async function loadConfig(
   const url = pathToFileURL(path.resolve(outDir, 'source.config.mjs'));
 
   const config = import(`${url.href}?hash=${hash}`).then((loaded) => {
-    const [err, config] = buildConfig(
+    return buildConfig(
       // every call to `loadConfig` will cause the previous cache to be ignored
       loaded as Record<string, unknown>,
     );
-
-    if (err !== null) throw new Error(err);
-    return config;
   });
 
   cache = { config, hash };

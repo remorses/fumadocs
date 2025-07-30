@@ -1,16 +1,15 @@
-import type { GlobalConfig } from '@/config/types';
 import type { LoadedConfig } from '@/utils/config';
 import type {
-  DocsCollection,
   DocCollection,
+  DocsCollection,
+  GlobalConfig,
   MetaCollection,
 } from '@/config/define';
+import type { ProcessorOptions } from '@mdx-js/mdx';
 
-export function buildConfig(
-  config: Record<string, unknown>,
-): [err: string, value: null] | [err: null, value: LoadedConfig] {
+export function buildConfig(config: Record<string, unknown>): LoadedConfig {
   const collections: LoadedConfig['collections'] = new Map();
-  let globalConfig: LoadedConfig['global'];
+  let globalConfig: LoadedConfig['global'] = {};
 
   for (const [k, v] of Object.entries(config)) {
     if (!v) {
@@ -34,17 +33,28 @@ export function buildConfig(
       continue;
     }
 
-    return [
+    throw new Error(
       `Unknown export "${k}", you can only export collections from source configuration file.`,
-      null,
-    ];
+    );
   }
 
-  return [
-    null,
-    {
-      global: globalConfig,
-      collections,
+  let cachedMdxOptions: Promise<ProcessorOptions> | undefined;
+  return {
+    global: globalConfig,
+    collections,
+    async getDefaultMDXOptions(): Promise<ProcessorOptions> {
+      if (cachedMdxOptions) return cachedMdxOptions;
+
+      const input = this.global?.mdxOptions;
+      async function uncached(): Promise<ProcessorOptions> {
+        const options = typeof input === 'function' ? await input() : input;
+        const { getDefaultMDXOptions } = await import('@/utils/mdx-options');
+
+        if (options?.preset === 'minimal') return options;
+        return getDefaultMDXOptions(options ?? {});
+      }
+
+      return (cachedMdxOptions = uncached());
     },
-  ];
+  };
 }
