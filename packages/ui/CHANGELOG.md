@@ -1,5 +1,19 @@
 # next-docs-ui
 
+## 15.6.9
+
+### Patch Changes
+
+- f2b22ca: simplify layout offset logic
+- Updated dependencies [0ab2cdd]
+  - fumadocs-core@15.6.9
+
+## 15.6.8
+
+### Patch Changes
+
+- fumadocs-core@15.6.8
+
 ## 15.6.7
 
 ### Patch Changes

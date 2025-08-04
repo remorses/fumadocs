@@ -1,5 +1,23 @@
 # @fuma-docs/openapi
 
+## 9.1.8
+
+### Patch Changes
+
+- Updated dependencies [0ab2cdd]
+- Updated dependencies [f2b22ca]
+  - fumadocs-core@15.6.9
+  - fumadocs-ui@15.6.9
+
+## 9.1.7
+
+### Patch Changes
+
+- 224f259: Make Next.js dependency optional
+- 6e29dd1: Fix Waku compatibility
+  - fumadocs-core@15.6.8
+  - fumadocs-ui@15.6.8
+
 ## 9.1.6
 
 ### Patch Changes

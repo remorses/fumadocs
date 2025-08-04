@@ -1,5 +1,13 @@
 # next-docs-zeta
 
+## 15.6.9
+
+### Patch Changes
+
+- 0ab2cdd: remove waku & tanstack peer dependency temporarily (see https://github.com/fuma-nama/fumadocs/issues/2144)
+
+## 15.6.8
+
 ## 15.6.7
 
 ### Patch Changes

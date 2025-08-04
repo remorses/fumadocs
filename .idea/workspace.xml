@@ -4,16 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="edacdf1b-58dd-4ffe-9166-8e463dc8fa23" name="Changes" comment="Migrate to AI SDK v5">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/docs/components/ai/search.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/docs/components/ai/search.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/tanstack-start/src/components/not-found.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/examples/tanstack-start/src/components/not-found.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/tanstack-start/src/lib/source.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/tanstack-start/src/routes/__root.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/examples/tanstack-start/src/routes/__root.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/tanstack-start/src/routes/api/search.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/tanstack-start/src/routes/docs/$.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/tanstack-start/src/routes/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/examples/tanstack-start/src/routes/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/tanstack-start/vite.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/examples/tanstack-start/vite.config.ts" afterDir="false" />
+    <list default="true" id="edacdf1b-58dd-4ffe-9166-8e463dc8fa23" name="Changes" comment="UI: simplify layout offset logic">
+      <change beforePath="$PROJECT_DIR$/apps/docs/app/docs/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/docs/app/docs/layout.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,37 +83,37 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
-    "Node.js.openapi > generate-file.js.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "dev",
-    "jsx.switch.disabled": "true",
-    "last_opened_file_path": "/Users/xred/dev/fumadocs/packages/create-app/template/waku",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.standard": "true",
-    "node.js.detected.package.stylelint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.standard": "",
-    "node.js.selected.package.stylelint": "",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "pnpm",
-    "prettierjs.PrettierConfiguration.Package": "/Users/xred/dev/fumadocs/node_modules/prettier",
-    "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "actions.on.save",
-    "ts.external.directory.path": "/Users/xred/dev/fumadocs/node_modules/typescript/lib",
-    "ts.rename.search.for.js.occurrences": "false",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
+    &quot;Node.js.openapi &gt; generate-file.js.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
+    &quot;jsx.switch.disabled&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/xred/dev/fumadocs/packages/create-app/template/waku&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.stylelint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.stylelint&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;/Users/xred/dev/fumadocs/node_modules/prettier&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;actions.on.save&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/xred/dev/fumadocs/node_modules/typescript/lib&quot;,
+    &quot;ts.rename.search.for.js.occurrences&quot;: &quot;false&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
-      "PLAIN_TEXT"
+  &quot;keyToStringList&quot;: {
+    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
+      &quot;PLAIN_TEXT&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/packages/create-app/template/waku" />
@@ -697,71 +689,12 @@
       <workItem from="1753864861092" duration="12502000" />
       <workItem from="1753941132595" duration="6313000" />
       <workItem from="1754034637804" duration="3426000" />
-      <workItem from="1754038073679" duration="18005000" />
-    </task>
-    <task id="LOCAL-01781" summary="MDX: Generate config based on Next.js version">
-      <option name="closed" value="true" />
-      <created>1753450119436</created>
-      <option name="number" value="01781" />
-      <option name="presentableId" value="LOCAL-01781" />
-      <option name="project" value="LOCAL" />
-      <updated>1753450119436</updated>
-    </task>
-    <task id="LOCAL-01782" summary="UI: improve sidebar position">
-      <option name="closed" value="true" />
-      <created>1753451769131</created>
-      <option name="number" value="01782" />
-      <option name="presentableId" value="LOCAL-01782" />
-      <option name="project" value="LOCAL" />
-      <updated>1753451769131</updated>
-    </task>
-    <task id="LOCAL-01783" summary="UI: improve RTL layout">
-      <option name="closed" value="true" />
-      <created>1753457585219</created>
-      <option name="number" value="01783" />
-      <option name="presentableId" value="LOCAL-01783" />
-      <option name="project" value="LOCAL" />
-      <updated>1753457585219</updated>
-    </task>
-    <task id="LOCAL-01784" summary="UI: improve RTL layout">
-      <option name="closed" value="true" />
-      <created>1753458345609</created>
-      <option name="number" value="01784" />
-      <option name="presentableId" value="LOCAL-01784" />
-      <option name="project" value="LOCAL" />
-      <updated>1753458345609</updated>
-    </task>
-    <task id="LOCAL-01785" summary="UI: improve RTL layout">
-      <option name="closed" value="true" />
-      <created>1753458871712</created>
-      <option name="number" value="01785" />
-      <option name="presentableId" value="LOCAL-01785" />
-      <option name="project" value="LOCAL" />
-      <updated>1753458871712</updated>
-    </task>
-    <task id="LOCAL-01786" summary="UI: Improve type table link icon">
-      <option name="closed" value="true" />
-      <created>1753460003717</created>
-      <option name="number" value="01786" />
-      <option name="presentableId" value="LOCAL-01786" />
-      <option name="project" value="LOCAL" />
-      <updated>1753460003717</updated>
-    </task>
-    <task id="LOCAL-01787" summary="UI: Improve type table link icon">
-      <option name="closed" value="true" />
-      <created>1753460016944</created>
-      <option name="number" value="01787" />
-      <option name="presentableId" value="LOCAL-01787" />
-      <option name="project" value="LOCAL" />
-      <updated>1753460016944</updated>
-    </task>
-    <task id="LOCAL-01788" summary="UI: Improve type table link icon">
-      <option name="closed" value="true" />
-      <created>1753460266868</created>
-      <option name="number" value="01788" />
-      <option name="presentableId" value="LOCAL-01788" />
-      <option name="project" value="LOCAL" />
-      <updated>1753460266868</updated>
+      <workItem from="1754038073679" duration="19016000" />
+      <workItem from="1754110591578" duration="11469000" />
+      <workItem from="1754130248722" duration="3671000" />
+      <workItem from="1754204737729" duration="2422000" />
+      <workItem from="1754274652897" duration="8851000" />
+      <workItem from="1754302800743" duration="8815000" />
     </task>
     <task id="LOCAL-01789" summary="UI: improve codeblock diff styles">
       <option name="closed" value="true" />
@@ -1091,7 +1024,71 @@
       <option name="project" value="LOCAL" />
       <updated>1754054692675</updated>
     </task>
-    <option name="localTasksCounter" value="1830" />
+    <task id="LOCAL-01830" summary="Migrate to AI SDK v5">
+      <option name="closed" value="true" />
+      <created>1754056790941</created>
+      <option name="number" value="01830" />
+      <option name="presentableId" value="LOCAL-01830" />
+      <option name="project" value="LOCAL" />
+      <updated>1754056790941</updated>
+    </task>
+    <task id="LOCAL-01831" summary="Upgrade Tanstack Start to fix upstream bugs">
+      <option name="closed" value="true" />
+      <created>1754112293419</created>
+      <option name="number" value="01831" />
+      <option name="presentableId" value="LOCAL-01831" />
+      <option name="project" value="LOCAL" />
+      <updated>1754112293419</updated>
+    </task>
+    <task id="LOCAL-01832" summary="fix bugs &amp; add showcase">
+      <option name="closed" value="true" />
+      <created>1754126209318</created>
+      <option name="number" value="01832" />
+      <option name="presentableId" value="LOCAL-01832" />
+      <option name="project" value="LOCAL" />
+      <updated>1754126209318</updated>
+    </task>
+    <task id="LOCAL-01833" summary="fix bugs &amp; add showcase">
+      <option name="closed" value="true" />
+      <created>1754126967764</created>
+      <option name="number" value="01833" />
+      <option name="presentableId" value="LOCAL-01833" />
+      <option name="project" value="LOCAL" />
+      <updated>1754126967764</updated>
+    </task>
+    <task id="LOCAL-01834" summary="Core: remove waku &amp; tanstack peer dependency temporarily">
+      <option name="closed" value="true" />
+      <created>1754300929054</created>
+      <option name="number" value="01834" />
+      <option name="presentableId" value="LOCAL-01834" />
+      <option name="project" value="LOCAL" />
+      <updated>1754300929054</updated>
+    </task>
+    <task id="LOCAL-01835" summary="UI: fixed root toggle menu size">
+      <option name="closed" value="true" />
+      <created>1754303427696</created>
+      <option name="number" value="01835" />
+      <option name="presentableId" value="LOCAL-01835" />
+      <option name="project" value="LOCAL" />
+      <updated>1754303427696</updated>
+    </task>
+    <task id="LOCAL-01836" summary="UI: simplify layout offset logic">
+      <option name="closed" value="true" />
+      <created>1754312936753</created>
+      <option name="number" value="01836" />
+      <option name="presentableId" value="LOCAL-01836" />
+      <option name="project" value="LOCAL" />
+      <updated>1754312936753</updated>
+    </task>
+    <task id="LOCAL-01837" summary="UI: simplify layout offset logic">
+      <option name="closed" value="true" />
+      <created>1754312963539</created>
+      <option name="number" value="01837" />
+      <option name="presentableId" value="LOCAL-01837" />
+      <option name="project" value="LOCAL" />
+      <updated>1754312963539</updated>
+    </task>
+    <option name="localTasksCounter" value="1838" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1142,11 +1139,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
-    <MESSAGE value="UI: improve sidebar position" />
-    <MESSAGE value="UI: improve RTL layout" />
-    <MESSAGE value="UI: Improve type table link icon" />
-    <MESSAGE value="UI: improve codeblock diff styles" />
-    <MESSAGE value="Core: Support to override `&lt;HideIfEmpty /&gt;` scripts nonce with `&lt;HideIfEmptyProvider /&gt;`" />
     <MESSAGE value="UI: Move sidebar toolbar to top on mobile view" />
     <MESSAGE value="UI: improve details" />
     <MESSAGE value="React Router: add example pre-render script" />
@@ -1167,6 +1159,11 @@
     <MESSAGE value="Add Waku example back" />
     <MESSAGE value="fix format issues" />
     <MESSAGE value="Migrate to AI SDK v5" />
-    <option name="LAST_COMMIT_MESSAGE" value="Migrate to AI SDK v5" />
+    <MESSAGE value="Upgrade Tanstack Start to fix upstream bugs" />
+    <MESSAGE value="fix bugs &amp; add showcase" />
+    <MESSAGE value="Core: remove waku &amp; tanstack peer dependency temporarily" />
+    <MESSAGE value="UI: fixed root toggle menu size" />
+    <MESSAGE value="UI: simplify layout offset logic" />
+    <option name="LAST_COMMIT_MESSAGE" value="UI: simplify layout offset logic" />
   </component>
 </project>
