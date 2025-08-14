@@ -4,7 +4,7 @@ import { buildMDX } from '@/utils/build-mdx';
 import { parse } from 'node:querystring';
 import { countLines } from '@/utils/count-lines';
 import { fumaMatter } from '@/utils/fuma-matter';
-import { validate, ValidationError } from '@/utils/schema';
+import { validate, ValidationError } from '@/utils/validation';
 import { z } from 'zod';
 import { ident, toImportPath } from '@/utils/import-formatter';
 import type { DocCollection, DocsCollection, MetaCollection } from '@/config';
@@ -23,7 +23,14 @@ export interface PluginOptions {
    *
    * @defaultValue true
    */
-  generateIndexFile?: boolean;
+  generateIndexFile?:
+    | boolean
+    | {
+        /**
+         * add `.js` extensions to imports, needed for ESM without bundler resolution
+         */
+        addJsExtension?: boolean;
+      };
 
   /**
    * @defaultValue source.config.ts
@@ -183,6 +190,10 @@ export default function mdx(
         `import { fromConfig } from 'fumadocs-mdx/runtime/vite';`,
         `import type * as Config from '${toImportPath(configPath, {
           relativeTo: outdir,
+          jsExtension:
+            typeof generateIndexFile === 'object'
+              ? generateIndexFile.addJsExtension
+              : undefined,
         })}';`,
         '',
         `export const create = fromConfig<typeof Config>();`,

@@ -99,25 +99,17 @@ export function transformerTwoslash({
       },
       hoverPopup: {
         tagName: 'PopupContent',
+        properties: {
+          class: ignoreClass,
+        },
       },
       hoverCompose: ({ popup, token }) => [
         popup,
         {
           type: 'element',
           tagName: 'PopupTrigger',
-          properties: {
-            asChild: true,
-          },
-          children: [
-            {
-              type: 'element',
-              tagName: 'span',
-              properties: {
-                class: 'twoslash-hover',
-              },
-              children: [token],
-            },
-          ],
+          properties: {},
+          children: [token],
         },
       ],
       popupDocs: {

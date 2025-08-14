@@ -1,5 +1,34 @@
 # @fuma-docs/openapi
 
+## 9.1.12
+
+### Patch Changes
+
+- 8e3c07e: load default examples without lazy loading
+
+## 9.1.11
+
+### Patch Changes
+
+- c07af6f: Support `serverContext` & `createCodeSample` for custom `generateCodeSamples()` function
+- Updated dependencies [569bc26]
+- Updated dependencies [817c237]
+  - fumadocs-core@15.6.10
+  - fumadocs-ui@15.6.10
+
+## 9.1.10
+
+### Patch Changes
+
+- 86c973d: fix(multipart): improve encode logic for multipart/form-data
+
+## 9.1.9
+
+### Patch Changes
+
+- 790494a: fix(ui): Allow decimal values in number inputs
+- 04a73ea: Remove explicit form data `Content-Type`
+
 ## 9.1.8
 
 ### Patch Changes
