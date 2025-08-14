@@ -25,11 +25,9 @@ export type FumadocsPresetOptions = Omit<
    * The directory to find image sizes
    *
    * @defaultValue './public'
-   * @deprecated Use `remarkImageOptions.publicDir` instead
+   * @deprecated No longer supported
    */
   imageDir?: string;
-
-  remarkImageOptions?: Plugins.RemarkImageOptions | false;
 };
 
 export type CompilerOptions =
@@ -153,7 +151,6 @@ export async function compileMDX<
 function getCompileOptions({
   preset: _,
   rehypeCodeOptions,
-  remarkImageOptions,
   rehypeTocOptions,
   remarkHeadingOptions,
   remarkCodeTabOptions,
@@ -170,7 +167,6 @@ function getCompileOptions({
   const remarkHeading = getPlugin('remarkHeading');
   const remarkCodeTab = getPlugin('remarkCodeTab');
   const remarkNpm = getPlugin('remarkNpm');
-  const remarkImage = getPlugin('remarkImage');
   const rehypeCode = getPlugin('rehypeCode');
   const rehypeToc = getPlugin('rehypeToc');
 
@@ -182,16 +178,6 @@ function getCompileOptions({
         remarkGfm,
         remarkHeading && remarkHeadingOptions !== false
           ? [remarkHeading, remarkHeadingOptions]
-          : null,
-        remarkImage && remarkImageOptions !== false
-          ? [
-              remarkImage,
-              {
-                useImport: false,
-                publicDir: imageDir,
-                ...remarkImageOptions,
-              } satisfies Plugins.RemarkImageOptions,
-            ]
           : null,
         remarkCodeTab && remarkCodeTabOptions !== false
           ? [remarkCodeTab, remarkCodeTabOptions]

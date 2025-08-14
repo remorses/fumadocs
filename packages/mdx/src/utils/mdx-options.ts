@@ -19,7 +19,6 @@ export type DefaultMDXOptions = Omit<
 
   remarkStructureOptions?: plugins.StructureOptions | false;
   remarkHeadingOptions?: plugins.RemarkHeadingOptions;
-  remarkImageOptions?: plugins.RemarkImageOptions | false;
   remarkCodeTabOptions?: plugins.RemarkCodeTabOptions | false;
   remarkNpmOptions?: plugins.RemarkNpmOptions | false;
   rehypeCodeOptions?: plugins.RehypeCodeOptions | false;
@@ -45,7 +44,6 @@ function pluginOption(
 export function getDefaultMDXOptions({
   valueToExport = [],
   rehypeCodeOptions,
-  remarkImageOptions,
   remarkHeadingOptions,
   remarkStructureOptions,
   remarkCodeTabOptions,
@@ -68,13 +66,6 @@ export function getDefaultMDXOptions({
         {
           generateToc: false,
           ...remarkHeadingOptions,
-        },
-      ],
-      remarkImageOptions !== false && [
-        plugins.remarkImage,
-        {
-          ...remarkImageOptions,
-          useImport: _withoutBundler ? false : remarkImageOptions?.useImport,
         },
       ],
       'remarkCodeTab' in plugins &&

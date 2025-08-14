@@ -33,7 +33,6 @@ export interface TransformOptions
   remarkStructureOptions?: Plugins.StructureOptions | boolean;
   remarkHeadingOptions?: Plugins.RemarkHeadingOptions | boolean;
   rehypeCodeOptions?: Plugins.RehypeCodeOptions | boolean;
-  remarkImageOptions?: Plugins.RemarkImageOptions | boolean;
   remarkCodeTabOptions?: Plugins.RemarkCodeTabOptions | boolean;
 }
 
@@ -82,7 +81,6 @@ export async function transformMDX<D extends BaseDoc>(
     remarkStructureOptions = generateStructuredData ?? true,
     rehypeCodeOptions = true,
     remarkHeadingOptions = true,
-    remarkImageOptions = true,
     remarkCodeTabOptions = true,
     ...rest
   } = options;
@@ -116,9 +114,6 @@ export async function transformMDX<D extends BaseDoc>(
             (plugins) => [
               Plugins.remarkGfm,
               resolvePlugin(Plugins.remarkHeading, remarkHeadingOptions),
-              resolvePlugin(Plugins.remarkImage, remarkImageOptions, {
-                useImport: false,
-              }),
               'remarkCodeTab' in Plugins &&
                 resolvePlugin(Plugins.remarkCodeTab, remarkCodeTabOptions),
               ...plugins,
