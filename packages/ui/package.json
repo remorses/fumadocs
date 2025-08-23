@@ -1,6 +1,6 @@
 {
   "name": "fumadocs-ui",
-  "version": "15.6.10",
+  "version": "15.7.1",
   "description": "The framework for building a documentation website in Next.js",
   "keywords": [
     "NextJs",
@@ -24,9 +24,41 @@
       "import": "./dist/i18n.js",
       "types": "./dist/i18n.d.ts"
     },
-    "./layouts/*": {
-      "import": "./dist/layouts/*.js",
-      "types": "./dist/layouts/*.d.ts"
+    "./layouts/home": {
+      "import": "./dist/layouts/home/index.js",
+      "types": "./dist/layouts/home/index.d.ts"
+    },
+    "./layouts/home/*": {
+      "import": "./dist/layouts/home/*.js",
+      "types": "./dist/layouts/home/*.d.ts"
+    },
+    "./layouts/docs": {
+      "import": "./dist/layouts/docs/index.js",
+      "types": "./dist/layouts/docs/index.d.ts"
+    },
+    "./layouts/docs/page": {
+      "import": "./dist/layouts/docs/page.js",
+      "types": "./dist/layouts/docs/page.d.ts"
+    },
+    "./layouts/docs-client": {
+      "import": "./dist/layouts/docs/client.js",
+      "types": "./dist/layouts/docs/client.d.ts"
+    },
+    "./layouts/notebook": {
+      "import": "./dist/layouts/notebook/index.js",
+      "types": "./dist/layouts/notebook/index.d.ts"
+    },
+    "./layouts/notebook-client": {
+      "import": "./dist/layouts/notebook/client.js",
+      "types": "./dist/layouts/notebook/client.d.ts"
+    },
+    "./layouts/links": {
+      "import": "./dist/layouts/shared/index.js",
+      "types": "./dist/layouts/shared/index.d.ts"
+    },
+    "./layouts/shared": {
+      "import": "./dist/layouts/shared/index.js",
+      "types": "./dist/layouts/shared/index.d.ts"
     },
     "./page": {
       "node": "./dist/page.server.js",
@@ -82,17 +114,16 @@
     "types:check": "tsc --noEmit"
   },
   "dependencies": {
-    "@radix-ui/react-accordion": "^1.2.11",
-    "@radix-ui/react-collapsible": "^1.1.11",
-    "@radix-ui/react-dialog": "^1.1.14",
+    "@radix-ui/react-accordion": "^1.2.12",
+    "@radix-ui/react-collapsible": "^1.1.12",
+    "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-direction": "^1.1.1",
-    "@radix-ui/react-navigation-menu": "^1.2.13",
-    "@radix-ui/react-popover": "^1.1.14",
-    "@radix-ui/react-presence": "^1.1.4",
-    "@radix-ui/react-scroll-area": "^1.2.9",
+    "@radix-ui/react-navigation-menu": "^1.2.14",
+    "@radix-ui/react-popover": "^1.1.15",
+    "@radix-ui/react-presence": "^1.1.5",
+    "@radix-ui/react-scroll-area": "^1.2.10",
     "@radix-ui/react-slot": "^1.2.3",
-    "@radix-ui/react-tabs": "^1.1.12",
-    "@types/node": "^24.0.1",
+    "@radix-ui/react-tabs": "^1.1.13",
     "class-variance-authority": "^0.7.1",
     "fumadocs-core": "workspace:*",
     "lodash.merge": "^4.6.2",
@@ -104,15 +135,15 @@
   },
   "devDependencies": {
     "@fumadocs/cli": "workspace:*",
-    "@next/eslint-plugin-next": "^15.4.6",
-    "@tailwindcss/cli": "^4.1.11",
+    "@next/eslint-plugin-next": "^15.5.0",
+    "@tailwindcss/cli": "^4.1.12",
     "@types/lodash.merge": "^4.6.9",
-    "@types/react": "^19.1.10",
+    "@types/react": "^19.1.11",
     "@types/react-dom": "^19.1.7",
     "eslint-config-custom": "workspace:*",
     "fumadocs-core": "workspace:*",
-    "next": "15.4.6",
-    "tailwindcss": "^4.1.11",
+    "next": "15.5.0",
+    "tailwindcss": "^4.1.12",
     "tsc-alias": "^1.8.16",
     "tsconfig": "workspace:*"
   },

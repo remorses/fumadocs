@@ -1,5 +1,120 @@
 # next-docs-ui
 
+## 15.7.1
+
+### Patch Changes
+
+- b4e6147: Fix sidebar & animation bugs
+- Updated dependencies [195b090]
+- Updated dependencies [e1c84a2]
+  - fumadocs-core@15.7.1
+
+## 15.7.0
+
+### Minor Changes
+
+- e785f98: **Introduce page tree `fallback` API**
+
+  Page tree is a tree structure.
+
+  Previously, when an item is excluded from page tree, it is isolated entirely that you cannot display it at all.
+
+  With the new fallback API, isolated pages will go into `fallback` page tree instead:
+
+  ```json
+  {
+    "children": [
+      {
+        "type": "page",
+        "name": "Introduction"
+      }
+    ],
+    "fallback": {
+      "children": [
+        {
+          "type": "page",
+          "name": "Hidden Page"
+        }
+      ]
+    }
+  }
+  ```
+
+  Items in `fallback` are invisible unless you've opened its item.
+
+- 50eb07f: **Support type-safe i18n config**
+
+  ```ts
+  // lib/source.ts
+  import { defineI18n } from 'fumadocs-core/i18n';
+
+  export const i18n = defineI18n({
+    defaultLanguage: 'en',
+    languages: ['en', 'cn'],
+  });
+  ```
+
+  ```tsx
+  // root layout
+  import { defineI18nUI } from 'fumadocs-ui/i18n';
+  import { i18n } from '@/lib/i18n';
+
+  const { provider } = defineI18nUI(i18n, {
+    translations: {
+      cn: {
+        displayName: 'Chinese',
+        search: 'Translated Content',
+      },
+      en: {
+        displayName: 'English',
+      },
+    },
+  });
+
+  function RootLayout({ children }: { children: React.ReactNode }) {
+    return <RootProvider i18n={provider(lang)}>{children}</RootProvider>;
+  }
+  ```
+
+  Although optional, we highly recommend you to refactor the import to i18n middleware:
+
+  ```ts
+  // here!
+  import { createI18nMiddleware } from 'fumadocs-core/i18n/middleware';
+  import { i18n } from '@/lib/i18n';
+
+  export default createI18nMiddleware(i18n);
+  ```
+
+### Patch Changes
+
+- b109d06: Redesign `useShiki` & `<DynamicCodeBlock />` to use React 19 hooks
+- b99cf51: Shadcn UI theme: support sidebar specific colors
+- Updated dependencies [514052e]
+- Updated dependencies [e254c65]
+- Updated dependencies [ec75601]
+- Updated dependencies [e785f98]
+- Updated dependencies [0531bf4]
+- Updated dependencies [50eb07f]
+- Updated dependencies [67df155]
+- Updated dependencies [b109d06]
+  - fumadocs-core@15.7.0
+
+## 15.6.12
+
+### Patch Changes
+
+- fe31a72: Fix custom components auto RWD handling for home layout
+  - fumadocs-core@15.6.12
+
+## 15.6.11
+
+### Patch Changes
+
+- 6de6ff3: Restrict exports of `layouts` to avoid projects importing internal/unstable APIs
+- f0b1fee: Improve layout component customisation experience by handling RWD automatically
+  - fumadocs-core@15.6.11
+
 ## 15.6.10
 
 ### Patch Changes

@@ -1,17 +1,15 @@
-export * from './middleware';
-
-export interface I18nConfig {
+export interface I18nConfig<Languages extends string = string> {
   /**
    * Supported locale codes.
    *
    * A page tree will be built for each language.
    */
-  languages: string[];
+  languages: Languages[];
 
   /**
    * Default locale if not specified
    */
-  defaultLanguage: string;
+  defaultLanguage: Languages;
 
   /**
    * Don't show the locale prefix on URL.
@@ -31,5 +29,18 @@ export interface I18nConfig {
    *
    * @defaultValue 'dot'
    */
-  parser?: 'dot' | 'dir';
+  parser?: 'dot' | 'dir' | 'none';
+
+  /**
+   * the fallback language when the page has no translations available for a given locale.
+   *
+   * Default to ``defaultLanguage`, no fallback when set to `null`.
+   */
+  fallbackLanguage?: Languages | null;
+}
+
+export function defineI18n<Languages extends string>(
+  config: I18nConfig<Languages>,
+): I18nConfig<Languages> {
+  return config;
 }

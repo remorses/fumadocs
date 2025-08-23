@@ -1,5 +1,78 @@
 # @fuma-docs/openapi
 
+## 9.2.2
+
+### Patch Changes
+
+- Updated dependencies [195b090]
+- Updated dependencies [e1c84a2]
+- Updated dependencies [b4e6147]
+  - fumadocs-core@15.7.1
+  - fumadocs-ui@15.7.1
+
+## 9.2.1
+
+### Patch Changes
+
+- 2122783: Fix absolute path when `input` is string/array
+- Updated dependencies [514052e]
+- Updated dependencies [e254c65]
+- Updated dependencies [ec75601]
+- Updated dependencies [e785f98]
+- Updated dependencies [0531bf4]
+- Updated dependencies [50eb07f]
+- Updated dependencies [67df155]
+- Updated dependencies [b109d06]
+- Updated dependencies [b99cf51]
+  - fumadocs-core@15.7.0
+  - fumadocs-ui@15.7.0
+
+## 9.2.0
+
+### Minor Changes
+
+- 2ef7f6b: **Introduce `input` API on `createOpenAPI()`, unify `generateFiles()`**
+
+  Migration: Move the server object from `lib/source` to `lib/openapi`
+
+  ```ts
+  import { createOpenAPI } from 'fumadocs-openapi/server';
+
+  export const openapi = createOpenAPI({
+    input: ['./my-schema.json'],
+  });
+  ```
+
+  Use the server object for `generateFiles()`:
+
+  ```ts
+  import { generateFiles } from 'fumadocs-openapi';
+  import { openapi } from '@/lib/openapi';
+
+  void generateFiles({
+    input: openapi,
+    output: './content/docs',
+    // we recommend to enable it
+    // make sure your endpoint description doesn't break MDX syntax.
+    includeDescription: true,
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies [fe31a72]
+  - fumadocs-ui@15.6.12
+  - fumadocs-core@15.6.12
+
+## 9.1.13
+
+### Patch Changes
+
+- Updated dependencies [6de6ff3]
+- Updated dependencies [f0b1fee]
+  - fumadocs-ui@15.6.11
+  - fumadocs-core@15.6.11
+
 ## 9.1.12
 
 ### Patch Changes

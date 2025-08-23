@@ -79,7 +79,7 @@ export const source = loader({
 
 With i18n enabled, loader will generate a page tree for every locale.
 
-When looking for a page, it fallbacks to default locale if the page doesn't exist for specified locale.
+If translations are missing for a page, it fallbacks to [`fallbackLanguage`](/docs/headless/internationalization#fallback-language).
 
 ## Output
 
@@ -193,14 +193,19 @@ import { loader } from 'fumadocs-core/source';
 
 loader({
   pageTree: {
-    attachFile(node, file) {
-      // you can access its file information
-      console.log(file?.data);
-      // JSX nodes are allowed
-      node.name = <>Some JSX Nodes here</>;
+    transformers: [
+      {
+        file(node, file) {
+          // you can access its file information
+          if (file) console.log(file, this.storage.read(file));
 
-      return node;
-    },
+          // JSX nodes are allowed
+          node.name = <>Some JSX Nodes here</>;
+
+          return node;
+        },
+      },
+    ],
   },
 });
 ```
