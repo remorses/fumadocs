@@ -3,9 +3,8 @@ import { Operation } from '@/render/operation';
 import type { RenderContext } from '@/types';
 import { createMethod } from '@/server/create-method';
 import { createRenders, type Renderer } from '@/render/renderer';
-import type { OpenAPIV3_1 } from 'openapi-types';
+import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
 import {
-  type DocumentInput,
   processDocument,
   type ProcessedDocument,
 } from '@/utils/process-document';
@@ -99,7 +98,7 @@ export interface OperationItem {
 }
 
 export interface ApiPageProps extends ApiPageContextProps {
-  document: DocumentInput;
+  document: string | OpenAPIV3_1.Document | OpenAPIV3.Document;
   hasHead: boolean;
 
   renderer?: Partial<Renderer>;
