@@ -1,5 +1,49 @@
 # @fuma-docs/openapi
 
+## 9.3.2
+
+### Patch Changes
+
+- Updated dependencies [cedc494]
+  - fumadocs-core@15.7.5
+  - fumadocs-ui@15.7.5
+
+## 9.3.1
+
+### Patch Changes
+
+- 585e1b2: Enhance resolveRequestData to support query parameters in path (legacy OpenAPI behavior)
+- e1b61ea: Unify input id and output documents
+- Updated dependencies [302cdc2]
+- Updated dependencies [02d3453]
+  - fumadocs-ui@15.7.4
+  - fumadocs-core@15.7.4
+
+## 9.3.0
+
+### Minor Changes
+
+- 22371ce: Support `index` generation in `generateFiles`: create index files to link all generated pages.
+
+### Patch Changes
+
+- 3d3790b: Use schema ID for anti-circular reference
+- Updated dependencies [f6de900]
+- Updated dependencies [6d97379]
+- Updated dependencies [e776ee5]
+  - fumadocs-ui@15.7.3
+  - fumadocs-core@15.7.3
+
+## 9.2.3
+
+### Patch Changes
+
+- Updated dependencies [88b5a4e]
+- Updated dependencies [039b24b]
+- Updated dependencies [08eee2b]
+  - fumadocs-core@15.7.2
+  - fumadocs-ui@15.7.2
+
 ## 9.2.2
 
 ### Patch Changes

@@ -6,9 +6,9 @@ import remarkStringify from 'remark-stringify';
 import type { PluggableList, Processor, Transformer } from 'unified';
 import { visit } from 'unist-util-visit';
 import type {
-    MdxJsxAttribute,
-    MdxJsxExpressionAttribute,
-    MdxJsxFlowElement,
+  MdxJsxAttribute,
+  MdxJsxExpressionAttribute,
+  MdxJsxFlowElement,
 } from 'mdast-util-mdx-jsx';
 
 interface Heading {
@@ -62,7 +62,11 @@ declare module 'mdast' {
   }
 }
 
-const slugger = new Slugger();
+declare module 'vfile' {
+  interface DataMap {
+    structuredData: StructuredData;
+  }
+}
 
 /**
  * Attach structured data to VFile, you can access via `vfile.data.structuredData`.
@@ -84,6 +88,8 @@ export function remarkStructure(
     },
   }: StructureOptions = {},
 ): Transformer<Root, Root> {
+  const slugger = new Slugger();
+
   if (Array.isArray(allowedMdxAttributes)) {
     const arr = allowedMdxAttributes;
     allowedMdxAttributes = (_node, attribute) =>
@@ -100,7 +106,7 @@ export function remarkStructure(
   return (node, file) => {
     slugger.reset();
     const data: StructuredData = { contents: [], headings: [] };
-    let lastHeading: string | undefined = '';
+    let lastHeading: string | undefined;
 
     // Fumadocs OpenAPI Generated Structured Data
     if (file.data.frontmatter) {
@@ -119,7 +125,7 @@ export function remarkStructure(
     visit(node, (element) => {
       if (element.type === 'root') return;
       if (!types(element)) return;
-
+ 
       if (element.type === 'heading') {
         element.data ||= {};
         element.data.hProperties ||= {};
@@ -204,5 +210,5 @@ export function structure(
     .use(remarkStructure, options)
     .processSync(content);
 
-  return result.data.structuredData as StructuredData;
+  return result.data.structuredData!;
 }

@@ -1,5 +1,39 @@
 # next-docs-ui
 
+## 15.7.5
+
+### Patch Changes
+
+- cedc494: Hotfix URL normalization logic
+- Updated dependencies [cedc494]
+  - fumadocs-core@15.7.5
+
+## 15.7.4
+
+### Patch Changes
+
+- 302cdc2: Use `position: fixed` for TOC
+- 02d3453: Make codeblocks flat & improve paddings
+  - fumadocs-core@15.7.4
+
+## 15.7.3
+
+### Patch Changes
+
+- f6de900: Add `overscroll` to sidebar viewports
+- Updated dependencies [6d97379]
+- Updated dependencies [e776ee5]
+  - fumadocs-core@15.7.3
+
+## 15.7.2
+
+### Patch Changes
+
+- Updated dependencies [88b5a4e]
+- Updated dependencies [039b24b]
+- Updated dependencies [08eee2b]
+  - fumadocs-core@15.7.2
+
 ## 15.7.1
 
 ### Patch Changes

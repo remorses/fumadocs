@@ -230,7 +230,7 @@ export function SidebarFooter(props: ComponentProps<'div'>) {
   return (
     <div
       {...props}
-      className={cn('flex flex-col border-t px-4 py-3', props.className)}
+      className={cn('flex flex-col border-t p-4 pt-2', props.className)}
     >
       {props.children}
     </div>
@@ -241,7 +241,7 @@ export function SidebarViewport(props: ScrollAreaProps) {
   return (
     <ScrollArea {...props} className={cn('h-full', props.className)}>
       <ScrollViewport
-        className="p-4"
+        className="p-4 overscroll-contain"
         style={
           {
             '--sidebar-item-offset': 'calc(var(--spacing) * 2)',

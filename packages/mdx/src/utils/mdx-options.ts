@@ -2,6 +2,7 @@ import * as plugins from 'fumadocs-core/mdx-plugins';
 import type { ProcessorOptions } from '@mdx-js/mdx';
 import type { Pluggable } from 'unified';
 import remarkMdxExport from '@/mdx-plugins/remark-exports';
+import { remarkExtract } from '@/mdx-plugins/remark-extract';
 
 type ResolvePlugins = Pluggable[] | ((v: Pluggable[]) => Pluggable[]);
 
@@ -53,6 +54,7 @@ export function getDefaultMDXOptions({
 }: DefaultMDXOptions): ProcessorOptions {
   const mdxExports = [
     'structuredData',
+    'extractedReferences',
     'frontmatter',
     'lastModified',
     ...valueToExport,
@@ -76,6 +78,7 @@ export function getDefaultMDXOptions({
       'remarkNpm' in plugins &&
         remarkNpmOptions !== false && [plugins.remarkNpm, remarkNpmOptions],
       ...v,
+      remarkExtract,
       remarkStructureOptions !== false && [
         plugins.remarkStructure,
         remarkStructureOptions,

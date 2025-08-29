@@ -1,5 +1,28 @@
 # next-docs-zeta
 
+## 15.7.5
+
+### Patch Changes
+
+- cedc494: Hotfix URL normalization logic
+
+## 15.7.4
+
+## 15.7.3
+
+### Patch Changes
+
+- 6d97379: unify remark nodes parsing & improve types
+- e776ee5: Fix `langAlias` not being passed to Shiki rehype plugin
+
+## 15.7.2
+
+### Patch Changes
+
+- 88b5a4e: Fix duplicate pages in page tree when referencing subpage in meta.json and using `...` or adding the subfolder again
+- 039b24b: Fix failed to update page tree from `loader()`
+- 08eee2b: [`remark-npm`] Enable `npm install` prefix fallback only on old alias
+
 ## 15.7.1
 
 ### Patch Changes
