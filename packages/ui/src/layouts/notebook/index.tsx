@@ -10,7 +10,7 @@ import {
   BaseLinkItem,
   getLinks,
   type LinkItemType,
-} from '@/layouts/shared';
+} from '@/layouts/shared/index';
 import {
   Sidebar,
   SidebarCollapseTrigger,
