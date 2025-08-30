@@ -36,10 +36,10 @@ const framework: Framework = {
       [router],
     );
   },
-  Link({ href, prefetch: _prefetch, ...props }) {
+  Link({ href, prefetch: _prefetch, children, ref: _, ...props }) {
     return (
       <WakuLink to={href!} {...props}>
-        {props.children}
+        {children}
       </WakuLink>
     );
   },
