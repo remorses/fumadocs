@@ -1,4 +1,10 @@
-import type { Environment, Plugin, TransformResult } from 'vite';
+import {
+  type Environment,
+  mergeConfig,
+  type Plugin,
+  type TransformResult,
+  type UserConfig,
+} from 'vite';
 import { buildConfig } from '@/config/build';
 import { buildMDX } from '@/utils/build-mdx';
 import { parse } from 'node:querystring';
@@ -6,13 +12,14 @@ import { countLines } from '@/utils/count-lines';
 import { fumaMatter } from '@/utils/fuma-matter';
 import { validate, ValidationError } from '@/utils/validation';
 import { z } from 'zod';
-import { toImportPath } from '@/utils/import-formatter';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { load } from 'js-yaml';
 import type { SourceMap, TransformPluginContext } from 'rollup';
 import { getGitTimestamp } from '@/utils/git-timestamp';
-import { doc, docs, meta } from '@/vite/generate';
+import { entry } from '@/vite/generate';
+
+const FumadocsDeps = ['fumadocs-core', 'fumadocs-ui', 'fumadocs-openapi'];
 
 const querySchema = z
   .object({
@@ -179,42 +186,35 @@ export default function mdx(
     name: 'fumadocs-mdx',
     // needed, otherwise other plugins will be executed before our `transform`.
     enforce: 'pre',
+    config(config) {
+      return mergeConfig(config, {
+        optimizeDeps: {
+          exclude: FumadocsDeps,
+        },
+        resolve: {
+          noExternal: FumadocsDeps,
+          dedupe: FumadocsDeps,
+        },
+      } satisfies UserConfig);
+    },
     async buildStart() {
       if (!generateIndexFile) return;
 
       console.log('[Fumadocs MDX] Generating index files');
-      const outdir = process.cwd();
+      const outDir = process.cwd();
       const outFile = 'source.generated.ts';
-      const lines = [
-        '/// <reference types="vite/client" />',
-        `import { fromConfig } from 'fumadocs-mdx/runtime/vite';`,
-        `import type * as Config from '${toImportPath(configPath, {
-          relativeTo: outdir,
-          jsExtension:
-            typeof generateIndexFile === 'object'
-              ? generateIndexFile.addJsExtension
-              : undefined,
-        })}';`,
-        '',
-        `export const create = fromConfig<typeof Config>();`,
-      ];
 
-      for (const [name, collection] of loaded.collections.entries()) {
-        let body: string;
-
-        if (collection.type === 'docs') {
-          body = docs(name, collection);
-        } else if (collection.type === 'meta') {
-          body = meta(name, collection);
-        } else {
-          body = doc(name, collection);
-        }
-
-        lines.push('');
-        lines.push(`export const ${name} = ${body};`);
-      }
-
-      await fs.writeFile(path.join(outdir, outFile), lines.join('\n'));
+      await fs.writeFile(
+        path.join(outDir, outFile),
+        entry(
+          configPath,
+          loaded,
+          outDir,
+          typeof generateIndexFile === 'object'
+            ? generateIndexFile.addJsExtension
+            : undefined,
+        ),
+      );
     },
 
     async transform(value, id) {

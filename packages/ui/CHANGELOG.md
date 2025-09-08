@@ -1,5 +1,48 @@
 # next-docs-ui
 
+## 15.7.10
+
+### Patch Changes
+
+- Updated dependencies [c948f59]
+  - fumadocs-core@15.7.10
+
+## 15.7.9
+
+### Patch Changes
+
+- 45c7531: Type Table: Support displaying parameters & return types
+- 4082acc: Redesign Type Table
+- Updated dependencies [d135efd]
+- Updated dependencies [4082acc]
+  - fumadocs-core@15.7.9
+
+## 15.7.8
+
+### Patch Changes
+
+- ba3382f: Support link item properties in menu items
+- efba995: Enforce the use of `--removed-body-scroll-bar-size` to fixed elements
+- bec3b36: Use `on-root:` to apply CSS variables from child layout components
+- Updated dependencies [f65778d]
+- Updated dependencies [e4c12a3]
+  - fumadocs-core@15.7.8
+
+## 15.7.7
+
+### Patch Changes
+
+- Updated dependencies [0b53056]
+- Updated dependencies [3490285]
+  - fumadocs-core@15.7.7
+
+## 15.7.6
+
+### Patch Changes
+
+- dc6d8a0: unify sidebar tabs matching
+  - fumadocs-core@15.7.6
+
 ## 15.7.5
 
 ### Patch Changes

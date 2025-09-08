@@ -1,5 +1,34 @@
 # next-docs-mdx
 
+## 11.9.0
+
+### Minor Changes
+
+- d193152: Support `absolutePath` on Vite
+
+### Patch Changes
+
+- 2566eef: Support postinstall script on Vite
+- Updated dependencies [c948f59]
+  - fumadocs-core@15.7.10
+
+## 11.8.3
+
+### Patch Changes
+
+- 205d92d: Update dev server initialization for Next.js 15.5.1
+- e4c12a3: Add Vite config for Fumadocs Core & UI automatically
+- Updated dependencies [f65778d]
+- Updated dependencies [e4c12a3]
+  - fumadocs-core@15.7.8
+
+## 11.8.2
+
+### Patch Changes
+
+- 9a3c23b: support auto-generated title based on `h1` heading
+- 9cb829c: Support referencing heading in `<include>` without sections
+
 ## 11.8.1
 
 ### Patch Changes

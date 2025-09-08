@@ -1,5 +1,34 @@
 # next-docs-zeta
 
+## 15.7.10
+
+### Patch Changes
+
+- c948f59: Try to workaround legacy i18n middleware under `/i18n` export without breaking changes
+
+## 15.7.9
+
+### Patch Changes
+
+- d135efd: `transformerIcon` supports SVG string to extend codeblock icons
+- 4082acc: Expose `highlightHast` API
+
+## 15.7.8
+
+### Patch Changes
+
+- f65778d: `Link` improve external link detection by enabling it on any protocols
+- e4c12a3: Add framework adapters to optional peer deps
+
+## 15.7.7
+
+### Patch Changes
+
+- 0b53056: Support `remarkMdxMermaid` - convert `mermaid` codeblocks into `<Mermaid />` component
+- 3490285: Support `remarkMdxFiles` - convert `files` codeblocks into `<Files />` component
+
+## 15.7.6
+
 ## 15.7.5
 
 ### Patch Changes

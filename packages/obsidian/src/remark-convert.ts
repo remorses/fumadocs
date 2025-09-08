@@ -2,17 +2,18 @@ import type { Blockquote, PhrasingContent, Root, RootContent } from 'mdast';
 import path from 'node:path';
 import { Processor, Transformer } from 'unified';
 import { visit } from 'unist-util-visit';
-import type { InternalContext, ParsedContentFile, ParsedFile } from '@/index';
-import { slug } from 'github-slugger';
+import type { InternalContext, ParsedContentFile, ParsedFile } from '@/convert';
 import { flattenNode } from '@/utils/flatten-node';
 import { stash } from '@/utils/stash';
 import type { MdxJsxFlowElement } from 'mdast-util-mdx-jsx';
 import { separate } from '@/utils/mdast-separate';
 import { createCallout } from '@/utils/mdast-create';
+import { replace } from '@/utils/mdast-replace';
+import { slug } from 'github-slugger';
 
 const RegexWikilink = /!?\[\[(?<content>([^\]]|\\])+)]]/g;
 const RegexContent =
-  /^(?<name>(?:\\#|\\\||[^#|])+)(?:#(?<heading>(?:\\\||[^|])+))?(?:\|(?<alias>.+))?$/;
+  /^(?<name>(?:\\#|\\\||[^#|])*)(?:#(?<heading>(?:\\\||[^|])+))?(?:\|(?<alias>.+))?$/;
 const RegexCalloutHead = /^\[!(?<type>\w+)](?<collapsible>\+)?/;
 
 interface Context extends InternalContext {
@@ -27,11 +28,32 @@ interface Context extends InternalContext {
   byName: Map<string, ParsedFile>;
 }
 
+declare module 'mdast' {
+  interface LinkData {
+    isWikiLink?: boolean;
+  }
+}
+
+function resolveInternalLink(
+  name: string,
+  file: ParsedContentFile,
+  { byPath, byName }: Context,
+) {
+  const dir = path.dirname(file.path);
+
+  if (name.startsWith('./') || name.startsWith('../')) {
+    return byPath.get(stash(path.join(dir, name)));
+  }
+
+  // absolute path or basic
+  return byPath.get(name) ?? byName.get(name);
+}
+
 function resolveWikilink(
   isEmbed: boolean,
   content: string,
   file: ParsedContentFile,
-  { byPath, byName }: Context,
+  context: Context,
 ): RootContent | undefined {
   const match = RegexContent.exec(content);
   if (!match?.groups) return;
@@ -41,25 +63,21 @@ function resolveWikilink(
     heading?: string;
     alias?: string;
   };
-  const dir = path.dirname(file.path);
-  let ref: ParsedFile | undefined;
 
-  if (name.startsWith('./') || name.startsWith('../')) {
-    ref = byPath.get(stash(path.join(dir, name)));
-  } else {
-    // absolute path or basic
-    ref = byPath.get(name) ?? byName.get(name);
-  }
-
-  if (!ref) {
-    console.warn(`failed to resolve ${name} wikilink`);
-    return;
-  }
+  const isHeading = name.length === 0 && heading;
 
   if (isEmbed) {
+    const ref = isHeading ? file : resolveInternalLink(name, file, context);
+
+    if (!ref) {
+      console.warn(`failed to resolve ${name} wikilink`);
+      return;
+    }
+
     if (ref.format === 'content') {
-      let filePath = stash(path.relative(dir, ref.outPath));
-      if (heading) filePath = `${filePath}#${slug(heading)}`;
+      console.warn(
+        'some features of embed content blocks are not supported yet, use at your own risk.',
+      );
 
       return {
         type: 'mdxJsxFlowElement',
@@ -71,7 +89,7 @@ function resolveWikilink(
             children: [
               {
                 type: 'text',
-                value: filePath,
+                value: getFileHref(path.dirname(file.outPath), ref, heading),
               },
             ],
           },
@@ -91,13 +109,27 @@ function resolveWikilink(
     };
   }
 
-  let href = stash(path.relative(dir, ref.outPath));
-  if (!href.startsWith('../')) href = `./${href}`;
-  if (heading) href = `${href}#${slug(heading)}`;
+  let url: string;
+
+  if (isHeading) {
+    url = heading!.startsWith('^') ? heading : `#${slug(heading)}`;
+  } else {
+    const ref = resolveInternalLink(name, file, context);
+
+    if (!ref) {
+      console.warn(`failed to resolve ${name} wikilink`);
+      return;
+    }
+
+    url = getFileHref(path.dirname(file.outPath), ref, heading);
+  }
 
   return {
     type: 'link',
-    url: href,
+    url,
+    data: {
+      isWikiLink: true,
+    },
     children: [
       {
         type: 'text',
@@ -169,7 +201,7 @@ export function remarkConvert(
     const source = file.data.source;
     if (!source) return;
 
-    visit(tree, ['text', 'heading', 'blockquote'], (node) => {
+    visit(tree, ['text', 'heading', 'blockquote', 'link'], (node) => {
       if (node.type === 'heading') {
         const text = flattenNode(node);
 
@@ -183,9 +215,26 @@ export function remarkConvert(
 
       if (node.type === 'blockquote') {
         const callout = resolveCallout.call(this, node);
-        if (callout) Object.assign(node, callout);
+        if (callout) replace(node, callout);
 
         return;
+      }
+
+      if (node.type === 'link') {
+        if (node.data?.isWikiLink) return 'skip';
+
+        const url = decodeURI(node.url);
+        if (url.startsWith('#')) {
+          node.url = `#${slug(url.slice(1))}`;
+          return 'skip';
+        }
+
+        const [name, heading] = url.split('#', 2);
+        const ref = resolveInternalLink(name, source, context);
+        if (!ref) return 'skip';
+
+        node.url = getFileHref(path.dirname(source.outPath), ref, heading);
+        return 'skip';
       }
 
       if (node.type !== 'text') return;
@@ -222,11 +271,21 @@ export function remarkConvert(
         });
       }
 
-      Object.assign(node, {
+      replace(node, {
         type: 'root',
         children: child,
       } satisfies Root);
       return 'skip';
     });
   };
+}
+
+function getFileHref(dir: string, ref: ParsedFile, heading?: string) {
+  if (ref.format === 'media') return ref.url;
+
+  let url = stash(path.relative(dir, ref.outPath));
+  if (!url.startsWith('../')) url = `./${url}`;
+  if (heading) url += `#${heading.startsWith('^') ? heading : slug(heading)}`;
+
+  return url;
 }

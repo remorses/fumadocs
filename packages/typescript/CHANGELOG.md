@@ -1,5 +1,21 @@
 # fumadocs-typescript
 
+## 4.0.8
+
+### Patch Changes
+
+- 0d55667: Enforce `peerDeps` on Fumadocs deps
+- Updated dependencies [c948f59]
+  - fumadocs-core@15.7.10
+  - fumadocs-ui@15.7.10
+
+## 4.0.7
+
+### Patch Changes
+
+- 45c7531: Type Table: Support displaying parameters & return types
+- 4082acc: Redesign Type Table
+
 ## 4.0.6
 
 ### Patch Changes
@@ -158,7 +174,6 @@
 - f75287d: **Introduce `fumadocs-docgen` package.**
 
   Offer a better authoring experience for advanced use cases.
-
   - Move `remark-dynamic-content` and `remark-install` plugins to the new package `fumadocs-docgen`.
   - Support Typescript generator by default
 
