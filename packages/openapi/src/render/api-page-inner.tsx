@@ -17,7 +17,7 @@ interface APIPageInnerProps extends Omit<ApiPageProps, 'document'> {
 export function APIPageInner(props: APIPageInnerProps) {
   const { operations, hasHead = true, webhooks, processed, ...rest } = props;
   const ctx = getContext(processed, rest);
-  const { document } = processed;
+  const { dereferenced: document } = processed;
 
   return (
     <ctx.renderer.Root ctx={ctx}>
@@ -122,7 +122,7 @@ export function getContext(
     renderer?: Partial<Renderer>;
   } = {},
 ) {
-  const document = schema.document;
+  const document = schema.dereferenced;
   const servers =
     document.servers && document.servers.length > 0
       ? document.servers
