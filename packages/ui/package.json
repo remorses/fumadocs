@@ -142,7 +142,7 @@
     "@types/react-dom": "^19.1.9",
     "eslint-config-custom": "workspace:*",
     "fumadocs-core": "workspace:*",
-    "next": "15.5.2",
+    "next": "15.5.4",
     "tailwindcss": "^4.1.13",
     "tsc-alias": "^1.8.16",
     "tsconfig": "workspace:*"
