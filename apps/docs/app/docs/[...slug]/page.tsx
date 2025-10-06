@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
 import { type ComponentProps, type FC, type ReactNode } from 'react';
 import * as Twoslash from 'fumadocs-twoslash/ui';
 import { Callout } from 'fumadocs-ui/components/callout';
@@ -19,17 +18,17 @@ import {
 import Link from 'fumadocs-core/link';
 import { AutoTypeTable } from 'fumadocs-typescript/ui';
 import { createGenerator } from 'fumadocs-typescript';
-import { getPageTreePeers } from 'fumadocs-core/server';
+import { getPageTreePeers } from 'fumadocs-core/page-tree';
 import { Card, Cards } from 'fumadocs-ui/components/card';
 import { getMDXComponents } from '@/mdx-components';
-import { APIPage } from 'fumadocs-openapi/ui';
 import { LLMCopyButton, ViewOptions } from '@/components/ai/page-actions';
 import * as path from 'node:path';
 import { Banner } from 'fumadocs-ui/components/banner';
-import { openapi } from '@/lib/openapi';
 import { Installation } from '@/components/preview/installation';
 import { Customisation } from '@/components/preview/customisation';
 import { DocsPage } from 'fumadocs-ui/page';
+import { NotFound } from '@/components/not-found';
+import { getSuggestions } from '@/app/docs/[...slug]/suggestions';
 
 function PreviewRenderer({ preview }: { preview: string }): ReactNode {
   if (preview && preview in Preview) {
@@ -48,10 +47,14 @@ export default async function Page(props: PageProps<'/docs/[...slug]'>) {
   const params = await props.params;
   const page = source.getPage(params.slug);
 
-  if (!page) notFound();
+  if (!page)
+    return (
+      <NotFound getSuggestions={() => getSuggestions(params.slug.join(' '))} />
+    );
 
   const preview = page.data.preview;
   const { body: Mdx, toc, lastModified } = page.data;
+  const isVirtual = page.data.info.fullPath.startsWith('virtual:');
 
   return (
     <DocsPage
@@ -62,17 +65,19 @@ export default async function Page(props: PageProps<'/docs/[...slug]'>) {
       }}
     >
       <h1 className="text-[1.75em] font-semibold">{page.data.title}</h1>
-      <p className="text-lg text-fd-muted-foreground">
+      <p className="text-lg text-fd-muted-foreground mb-2">
         {page.data.description}
       </p>
-      <div className="flex flex-row gap-2 items-center border-b pt-2 pb-6">
-        <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
-        <ViewOptions
-          markdownUrl={`${page.url}.mdx`}
-          githubUrl={`https://github.com/${owner}/${repo}/blob/dev/apps/docs/content/docs/${page.path}`}
-        />
-      </div>
-      <div className="prose flex-1 text-fd-foreground/80">
+      {!isVirtual && (
+        <div className="flex flex-row gap-2 items-center border-b pb-6">
+          <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
+          <ViewOptions
+            markdownUrl={`${page.url}.mdx`}
+            githubUrl={`https://github.com/${owner}/${repo}/blob/dev/apps/docs/content/docs/${page.path}`}
+          />
+        </div>
+      )}
+      <div className="prose flex-1 text-fd-foreground/90">
         {preview ? <PreviewRenderer preview={preview} /> : null}
         <Mdx
           components={getMDXComponents({
@@ -113,19 +118,16 @@ export default async function Page(props: PageProps<'/docs/[...slug]'>) {
             ),
             Wrapper,
             blockquote: Callout as unknown as FC<ComponentProps<'blockquote'>>,
-            APIPage: (props) => <APIPage {...openapi.getAPIPageProps(props)} />,
             DocsCategory: ({ url }) => {
               return <DocsCategory url={url ?? page.url} />;
             },
             Installation,
             Customisation,
-            ...(await import('@/content/docs/ui/components/tabs.client')),
-            ...(await import('@/content/docs/ui/theme.client')),
           })}
         />
         {page.data.index ? <DocsCategory url={page.url} /> : null}
       </div>
-      <Feedback onRateAction={onRateAction} />
+      {!isVirtual && <Feedback onRateAction={onRateAction} />}
     </DocsPage>
   );
 }
@@ -147,7 +149,10 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { slug = [] } = await props.params;
   const page = source.getPage(slug);
-  if (!page) notFound();
+  if (!page)
+    return createMetadata({
+      title: 'Not Found',
+    });
 
   const description =
     page.data.description ?? 'The library for building documentation sites';

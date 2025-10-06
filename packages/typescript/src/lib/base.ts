@@ -86,7 +86,8 @@ export function createGenerator(config?: GeneratorOptions | Project) {
           project: config,
         }
       : config;
-  const cacheType = options?.cache ?? 'fs';
+  const cacheType =
+    options?.cache ?? (process.env.NODE_ENV !== 'development' ? 'fs' : false);
   const cache = cacheType === 'fs' ? createCache() : null;
   let instance: Project | undefined;
 
@@ -202,9 +203,7 @@ function getDocEntry(
     return;
   }
 
-  const subType = program
-    .getTypeChecker()
-    .getTypeOfSymbolAtLocation(prop, context.declaration);
+  const subType = prop.getTypeAtLocation(context.declaration);
   const isOptional = prop.isOptional();
   const tags = prop.getJsDocTags().map(
     (tag) =>
@@ -214,13 +213,19 @@ function getDocEntry(
       }) satisfies RawTag,
   );
 
-  let type = getFullType(subType);
+  let simplifiedType = getSimpleForm(
+    subType,
+    program.getTypeChecker(),
+    isOptional,
+    context.declaration,
+  );
 
-  for (const tag of tags) {
-    if (tag.name !== 'remarks') continue;
+  const remarksTag = tags.find((tag) => tag.name === 'remarks');
+  if (remarksTag) {
+    const match = /^`(?<name>.+)`/.exec(remarksTag.text)?.[1];
 
     // replace type with @remarks
-    type = /^`(?<name>.+)`/.exec(tag.text)?.[1] ?? type;
+    if (match) simplifiedType = match;
   }
 
   const entry: DocEntry = {
@@ -231,12 +236,12 @@ function getDocEntry(
       ),
     ),
     tags,
-    type,
-    simplifiedType: getSimpleForm(
-      subType,
-      program.getTypeChecker(),
-      isOptional,
+    type: subType.getText(
+      context.declaration,
+      ts.TypeFormatFlags.UseAliasDefinedOutsideCurrentScope |
+        ts.TypeFormatFlags.NoTruncation,
     ),
+    simplifiedType,
     required: !isOptional,
     deprecated: tags.some((tag) => tag.name === 'deprecated'),
   };
@@ -244,19 +249,4 @@ function getDocEntry(
   transform?.call(context, entry, subType, prop);
 
   return entry;
-}
-
-function getFullType(type: Type): string {
-  let typeName = type.getText(
-    undefined,
-    ts.TypeFormatFlags.UseAliasDefinedOutsideCurrentScope |
-      ts.TypeFormatFlags.NoTruncation |
-      ts.TypeFormatFlags.InTypeAlias,
-  );
-
-  if (type.getAliasSymbol() && type.getAliasTypeArguments().length === 0) {
-    typeName = type.getAliasSymbol()?.getEscapedName() ?? typeName;
-  }
-
-  return typeName;
 }

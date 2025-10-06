@@ -1,26 +1,29 @@
-import { createMDXSource } from 'fumadocs-mdx';
-import type { InferMetaType, InferPageType } from 'fumadocs-core/source';
-import { loader } from 'fumadocs-core/source';
-import { icons } from 'lucide-react';
-import { transformerOpenAPI } from 'fumadocs-openapi/server';
-import { createElement } from 'react';
+import { createMDXSource } from 'fumadocs-mdx/runtime/next';
+import {
+  type InferMetaType,
+  type InferPageType,
+  loader,
+} from 'fumadocs-core/source';
+import { openapiPlugin } from 'fumadocs-openapi/server';
 import { blog as blogPosts, docs } from '@/.source';
+import { lucideIconsPlugin } from 'fumadocs-core/source/lucide-icons';
+import { openapi } from '@/lib/openapi';
+import { APIPage } from 'fumadocs-openapi/ui';
 
-export const source = loader({
+export const source = loader(docs.toFumadocsSource(), {
   baseUrl: '/docs',
-  icon(icon) {
-    if (icon && icon in icons)
-      return createElement(icons[icon as keyof typeof icons]);
-  },
-  source: docs.toFumadocsSource(),
-  pageTree: {
-    transformers: [transformerOpenAPI()],
-  },
+  plugins: [
+    lucideIconsPlugin(),
+    await openapiPlugin.withPages({
+      from: openapi,
+      APIPage,
+      baseDir: 'openapi/(generated)',
+    }),
+  ],
 });
 
-export const blog = loader({
+export const blog = loader(createMDXSource(blogPosts), {
   baseUrl: '/blog',
-  source: createMDXSource(blogPosts),
 });
 
 export type Page = InferPageType<typeof source>;

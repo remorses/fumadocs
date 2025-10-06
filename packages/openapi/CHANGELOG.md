@@ -1,5 +1,79 @@
 # @fuma-docs/openapi
 
+## 9.4.1
+
+### Patch Changes
+
+- a3a14e7: Bump deps
+- Updated dependencies [a3a14e7]
+- Updated dependencies [7b0d839]
+  - fumadocs-core@15.8.3
+  - fumadocs-ui@15.8.3
+
+## 9.4.0
+
+### Minor Changes
+
+- ac8e67d: OpenAPI: Custom request timeout for API playground
+
+### Patch Changes
+
+- Updated dependencies [90cf1fe]
+- Updated dependencies [ad9a004]
+- Updated dependencies [90cf1fe]
+- Updated dependencies [6c3bde5]
+- Updated dependencies [747bdbc]
+  - fumadocs-ui@15.8.2
+  - fumadocs-core@15.8.2
+
+## 9.3.13
+
+### Patch Changes
+
+- f04547f: Publish `plugins` API on `loader()`
+- Updated dependencies [71bce86]
+- Updated dependencies [f04547f]
+  - fumadocs-core@15.8.1
+  - fumadocs-ui@15.8.1
+
+## 9.3.12
+
+### Patch Changes
+
+- 0bb67d3: Improve error message
+- 46e76eb: Fix `minItems` being ignored
+- Updated dependencies [655bb46]
+- Updated dependencies [53a0635]
+- Updated dependencies [d1ae3e8]
+- Updated dependencies [6548a59]
+- Updated dependencies [51268ec]
+- Updated dependencies [51268ec]
+  - fumadocs-core@15.8.0
+  - fumadocs-ui@15.8.0
+
+## 9.3.11
+
+### Patch Changes
+
+- 3e7e178: OpenAPI: handle undefined description in index.md generation
+
+## 9.3.10
+
+### Patch Changes
+
+- Updated dependencies [982aed6]
+  - fumadocs-core@15.7.13
+  - fumadocs-ui@15.7.13
+
+## 9.3.9
+
+### Patch Changes
+
+- Updated dependencies [846b28a]
+- Updated dependencies [2b30315]
+  - fumadocs-core@15.7.12
+  - fumadocs-ui@15.7.12
+
 ## 9.3.8
 
 ### Patch Changes

@@ -107,6 +107,10 @@ export interface ClientProps extends HTMLAttributes<HTMLFormElement> {
   references: Record<string, RequestSchema>;
   proxyUrl?: string;
 
+  /**
+   * Request timeout in seconds (default: 10s)
+   */
+  requestTimeout?: number;
   fields?: {
     parameter?: CustomField<
       `${ParameterField['in']}.${string}`,
@@ -145,6 +149,7 @@ export default function Client({
   references,
   proxyUrl,
   components: { ResultDisplay = DefaultResultDisplay } = {},
+  requestTimeout = 10,
   ...rest
 }: ClientProps) {
   const { server } = useServerSelectContext();
@@ -172,7 +177,7 @@ export default function Client({
 
   const testQuery = useQuery(async (input: FormValues) => {
     const fetcher = await import('./fetcher').then((mod) =>
-      mod.createBrowserFetcher(mediaAdapters),
+      mod.createBrowserFetcher(mediaAdapters, requestTimeout),
     );
 
     input._encoded ??= encodeRequestData(
@@ -717,7 +722,7 @@ function useAuthInputs(securities?: SecurityEntry[]) {
     return result;
   }, [securities]);
 
-  const mapInputs = useEffectEvent((values: FormValues) => {
+  const mapInputs = (values: FormValues) => {
     for (const item of inputs) {
       if (!item.mapOutput) continue;
 
@@ -725,7 +730,7 @@ function useAuthInputs(securities?: SecurityEntry[]) {
     }
 
     return values;
-  });
+  };
 
   return { inputs, mapInputs };
 }

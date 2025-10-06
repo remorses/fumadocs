@@ -1,13 +1,13 @@
 {
   "name": "fumadocs-python",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "The built-in Python docgen for Fumadocs",
   "keywords": [
     "NextJs",
     "Docs",
     "Python"
   ],
-  "homepage": "https://fumadocs.vercel.app",
+  "homepage": "https://fumadocs.dev",
   "repository": "github:fuma-nama/fumadocs",
   "license": "MIT",
   "author": "Fuma Nama",
@@ -40,12 +40,12 @@
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^24.3.1",
-    "@types/react": "^19.1.12",
+    "@types/node": "^24.6.2",
+    "@types/react": "^19.2.0",
     "eslint-config-custom": "workspace:*",
     "fumadocs-core": "workspace:*",
     "fumadocs-ui": "workspace:*",
-    "lucide-react": "^0.543.0",
+    "lucide-react": "^0.544.0",
     "tsconfig": "workspace:*"
   },
   "peerDependencies": {

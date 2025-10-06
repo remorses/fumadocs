@@ -73,7 +73,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 ```
 
 ```ts tab="Tanstack Start" title="src/routes/api/search.ts"
-import { createServerFileRoute } from '@tanstack/react-start/server';
+import { createFileRoute } from '@tanstack/react-router';
 import { source } from '@/lib/source';
 import { createSearchAPI } from 'fumadocs-core/search/server';
 
@@ -88,8 +88,12 @@ const server = createSearchAPI('advanced', {
   })),
 });
 
-export const ServerRoute = createServerFileRoute('/api/search').methods({
-  GET: async ({ request }) => server.GET(request),
+export const Route = createFileRoute('/api/search')({
+  server: {
+    handlers: {
+      GET: async ({ request }) => server.GET(request),
+    },
+  },
 });
 ```
 
@@ -179,21 +183,23 @@ export const { staticGET: GET } = createFromSource(source);
 ```
 
 ```ts tab="React Router" title="app/docs/search.ts"
-import type { Route } from './+types/search';
-
 // make sure this route is pre-rendered in `react-router.config.ts`.
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader() {
   // [!code highlight]
-  return server.staticGET(request);
+  return server.staticGET();
 }
 ```
 
 ```ts tab="Tanstack Start" title="src/routes/api/search.ts"
-import { createServerFileRoute } from '@tanstack/react-start/server';
+import { createFileRoute } from '@tanstack/react-router';
 
-export const ServerRoute = createServerFileRoute('/api/search').methods({
-  // [!code highlight]
-  GET: async ({ request }) => server.staticGET(request),
+export const Route = createFileRoute('/api/search')({
+  server: {
+    handlers: {
+      // [!code highlight]
+      GET: async () => server.staticGET(),
+    },
+  },
 });
 ```
 

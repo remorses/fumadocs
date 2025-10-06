@@ -1,16 +1,7 @@
 'use client';
 
-import { RootProvider as BaseProvider } from './base';
-import type { ComponentProps } from 'react';
-import { NextProvider } from 'fumadocs-core/framework/next';
-
-export function RootProvider(props: ComponentProps<typeof BaseProvider>) {
-  return (
-    <NextProvider>
-      <BaseProvider {...props}>{props.children}</BaseProvider>
-    </NextProvider>
-  );
-}
+// TODO: remove this, recommend `fumadocs-ui/provider/next` instead.
+export { RootProvider } from './next';
 
 export { useI18n, I18nLabel } from '@/contexts/i18n';
 export {

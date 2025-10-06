@@ -1,5 +1,65 @@
 # next-docs-ui
 
+## 15.8.3
+
+### Patch Changes
+
+- a3a14e7: Bump deps
+- 7b0d839: Hotfix `fumadocs-ui/provider`
+- Updated dependencies [a3a14e7]
+  - fumadocs-core@15.8.3
+
+## 15.8.2
+
+### Patch Changes
+
+- 90cf1fe: Support `tabMode` on `<DocsLayout />`
+- 6c3bde5: **Prefer importing `<RootProvider />` from `fumadocs-ui/provider/<framework>`**
+  - Old `fumadocs-ui/provider` will be kept, as it's used by majority of previous projects.
+  - New guides & templates will follow the new recommendation.
+
+- Updated dependencies [ad9a004]
+- Updated dependencies [90cf1fe]
+- Updated dependencies [747bdbc]
+  - fumadocs-core@15.8.2
+
+## 15.8.1
+
+### Patch Changes
+
+- Updated dependencies [71bce86]
+- Updated dependencies [f04547f]
+  - fumadocs-core@15.8.1
+
+## 15.8.0
+
+### Patch Changes
+
+- 53a0635: Support custom `action` type search item in search dialog
+- 6548a59: Support breadcrumbs for Search API
+- Updated dependencies [655bb46]
+- Updated dependencies [d1ae3e8]
+- Updated dependencies [6548a59]
+- Updated dependencies [51268ec]
+- Updated dependencies [51268ec]
+  - fumadocs-core@15.8.0
+
+## 15.7.13
+
+### Patch Changes
+
+- Updated dependencies [982aed6]
+  - fumadocs-core@15.7.13
+
+## 15.7.12
+
+### Patch Changes
+
+- 846b28a: Support multiple codeblocks in same tab
+- Updated dependencies [846b28a]
+- Updated dependencies [2b30315]
+  - fumadocs-core@15.7.12
+
 ## 15.7.11
 
 ### Patch Changes
@@ -591,7 +651,7 @@
 
 ### Patch Changes
 
-- b07e98c: Deprecate `DocsCategory`, see https://fumadocs.vercel.app/docs/ui/markdown#further-reading-section
+- b07e98c: Deprecate `DocsCategory`, see https://fumadocs.dev/docs/ui/markdown#further-reading-section
 - Updated dependencies [d49f9ae]
 - Updated dependencies [b07e98c]
 - Updated dependencies [3a4bd88]

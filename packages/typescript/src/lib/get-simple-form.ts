@@ -4,12 +4,16 @@ export function getSimpleForm(
   type: ts.Type,
   checker: ts.TypeChecker,
   noUndefined = false,
+  location?: ts.Node,
 ): string {
   if (type.isUndefined() && noUndefined) return '';
 
   const alias = type.getAliasSymbol();
-  if (alias && type.getAliasTypeArguments().length === 0) {
-    return alias.getEscapedName();
+  if (alias) {
+    const args = type.getAliasTypeArguments();
+    if (args.length === 0) return alias.getName();
+
+    return `${alias.getName()}<${args.map((arg) => getSimpleForm(arg, checker)).join(', ')}>`;
   }
 
   if (type.isUnion()) {
@@ -21,7 +25,7 @@ export function getSimpleForm(
 
     return types.length > 0
       ? // boolean | null will become true | false | null, need to ensure it's still returned as boolean
-        types.join(' | ').replace('true | false', 'boolean')
+        dedupe(types).join(' | ').replace('true | false', 'boolean')
       : 'never';
   }
 
@@ -32,7 +36,7 @@ export function getSimpleForm(
       if (str.length > 0 && str !== 'never') types.unshift(str);
     }
 
-    return types.join(' & ');
+    return dedupe(types).join(' & ');
   }
 
   if (type.isTuple()) {
@@ -57,8 +61,21 @@ export function getSimpleForm(
   }
 
   return type.getText(
-    undefined,
-    ts.TypeFormatFlags.UseAliasDefinedOutsideCurrentScope |
-      ts.TypeFormatFlags.InTypeAlias,
+    location,
+    ts.TypeFormatFlags.UseAliasDefinedOutsideCurrentScope,
   );
+}
+
+function dedupe<T>(arr: T[]): T[] {
+  const dedupe = new Set<T>();
+  const out: T[] = [];
+
+  for (const item of arr) {
+    if (!dedupe.has(item)) {
+      out.push(item);
+      dedupe.add(item);
+    }
+  }
+
+  return out;
 }
