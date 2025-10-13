@@ -146,7 +146,7 @@ export default function mdx(
           return await transformMeta(file, query, value);
 
         if (['.md', '.mdx'].includes(ext))
-          return await mdxLoader.call(this, file, query, value);
+          return await mdxLoader.call(this as any, file, query, value);
       } catch (e) {
         if (e instanceof ValidationError) {
           throw new Error(e.toStringFormatted());
