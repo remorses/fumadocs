@@ -9,6 +9,7 @@ import { MethodLabel } from '@/ui/components/method-label';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import type { OpenAPIV3_1 } from 'openapi-types';
+import '@scalar/api-client-react/style.css';
 
 export default function ScalarPlayground({
   path,
@@ -34,15 +35,13 @@ export default function ScalarPlayground({
       )}
     >
       <MethodLabel className="text-xs">{method}</MethodLabel>
-      <code className="flex-1 overflow-auto text-nowrap text-[13px] text-fd-muted-foreground">
+      <code className="flex-1 overflow-auto text-nowrap text-[0.8125rem] text-fd-muted-foreground">
         {path}
       </code>
       <ApiClientModalProvider
         configuration={{
           theme: 'moon',
-          spec: {
-            content: spec,
-          },
+          content: spec,
         }}
       >
         <Trigger path={path} method={method} />

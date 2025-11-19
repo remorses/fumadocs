@@ -4,9 +4,12 @@ import {
   type ComponentProps,
   Fragment,
   useEffect,
+  useEffectEvent,
+  createContext,
   useMemo,
   useRef,
   useState,
+  use,
 } from 'react';
 import { ChevronDown, ChevronLeft, ChevronRight } from '@/icons';
 import Link from 'fumadocs-core/link';
@@ -14,14 +17,13 @@ import { cn } from '@/utils/cn';
 import { useI18n } from '@/contexts/i18n';
 import { useTreeContext, useTreePath } from '@/contexts/tree';
 import type * as PageTree from 'fumadocs-core/page-tree';
-import { createContext, usePathname } from 'fumadocs-core/framework';
+import { usePathname } from 'fumadocs-core/framework';
 import {
   type BreadcrumbOptions,
   getBreadcrumbItemsFromPath,
 } from 'fumadocs-core/breadcrumb';
 import { useNav } from '@/contexts/layout';
 import { isActive } from '@/utils/is-active';
-import { useEffectEvent } from 'fumadocs-core/utils/use-effect-event';
 import {
   Collapsible,
   CollapsibleContent,
@@ -34,11 +36,11 @@ import { useActiveAnchor } from 'fumadocs-core/toc';
 const TocPopoverContext = createContext<{
   open: boolean;
   setOpen: (open: boolean) => void;
-}>('TocPopoverContext');
+} | null>(null);
 
 export function PageTOCPopoverTrigger(props: ComponentProps<'button'>) {
   const { text } = useI18n();
-  const { open } = TocPopoverContext.use();
+  const { open } = use(TocPopoverContext)!;
   const items = useTOCItems();
   const active = useActiveAnchor();
   const selected = useMemo(
@@ -182,7 +184,7 @@ export function PageTOCPopover(props: ComponentProps<'div'>) {
   }, []);
 
   return (
-    <TocPopoverContext.Provider
+    <TocPopoverContext
       value={useMemo(
         () => ({
           open,
@@ -214,7 +216,7 @@ export function PageTOCPopover(props: ComponentProps<'div'>) {
           {props.children}
         </header>
       </Collapsible>
-    </TocPopoverContext.Provider>
+    </TocPopoverContext>
   );
 }
 
@@ -400,7 +402,7 @@ export function PageTOC(props: ComponentProps<'div'>) {
       id="nd-toc"
       {...props}
       className={cn(
-        'fixed bottom-0 pt-12 pb-2 pr-(--removed-body-scroll-bar-size,0) max-xl:hidden',
+        'fixed bottom-0 pt-12 pb-2 pr-(--removed-body-scroll-bar-size,0) xl:on-root:[--fd-toc-width:286px] max-xl:hidden',
         props.className,
       )}
       style={{

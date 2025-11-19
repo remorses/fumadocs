@@ -6,5 +6,13 @@ node_modules
 .output
 .nitro
 /build/
-
+/api/
+/server/build
+/public/build
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 .tanstack
+
+.source

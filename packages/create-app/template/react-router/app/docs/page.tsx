@@ -7,11 +7,10 @@ import {
   DocsTitle,
 } from 'fumadocs-ui/page';
 import { source } from '@/lib/source';
-import { baseOptions } from '@/lib/layout.shared';
-import { type PageTree } from 'fumadocs-core/server';
+import type * as PageTree from 'fumadocs-core/page-tree';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
-import { docs } from '../../source.generated';
-import { toClientRenderer } from 'fumadocs-mdx/runtime/vite';
+import browserCollections from 'fumadocs-mdx:collections/browser';
+import { baseOptions } from '@/lib/layout.shared';
 
 export async function loader({ params }: Route.LoaderArgs) {
   const slugs = params['*'].split('/').filter((v) => v.length > 0);
@@ -20,13 +19,12 @@ export async function loader({ params }: Route.LoaderArgs) {
 
   return {
     path: page.path,
-    tree: source.pageTree,
+    tree: source.getPageTree(),
   };
 }
 
-const renderer = toClientRenderer(
-  docs.doc,
-  ({ toc, default: Mdx, frontmatter }) => {
+const clientLoader = browserCollections.docs.createClientLoader({
+  component({ toc, default: Mdx, frontmatter }) {
     return (
       <DocsPage toc={toc}>
         <title>{frontmatter.title}</title>
@@ -39,11 +37,11 @@ const renderer = toClientRenderer(
       </DocsPage>
     );
   },
-);
+});
 
-export default function Page(props: Route.ComponentProps) {
-  const { tree, path } = props.loaderData;
-  const Content = renderer[path];
+export default function Page({ loaderData }: Route.ComponentProps) {
+  const { tree, path } = loaderData;
+  const Content = clientLoader.getComponent(path);
 
   return (
     <DocsLayout {...baseOptions()} tree={tree as PageTree.Root}>

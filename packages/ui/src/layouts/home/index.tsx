@@ -1,4 +1,4 @@
-import { Fragment, type HTMLAttributes, useMemo } from 'react';
+import { type HTMLAttributes, useMemo } from 'react';
 import { cn } from '@/utils/cn';
 import {
   type BaseLayoutProps,
@@ -7,14 +7,6 @@ import {
   type NavOptions,
 } from '@/layouts/shared';
 import { NavProvider } from '@/contexts/layout';
-import {
-  Navbar,
-  NavbarLink,
-  NavbarMenu,
-  NavbarMenuContent,
-  NavbarMenuLink,
-  NavbarMenuTrigger,
-} from '@/layouts/home/navbar';
 import {
   LargeSearchToggle,
   SearchToggle,
@@ -27,11 +19,13 @@ import {
 import { ChevronDown, Languages } from 'lucide-react';
 import Link from 'fumadocs-core/link';
 import {
-  Menu,
-  MenuContent,
-  MenuLinkItem,
-  MenuTrigger,
-} from '@/layouts/home/menu';
+  Navbar,
+  NavigationMenuLinkItem,
+  MobileNavigationMenuContent,
+  MobileNavigationMenuLinkItem,
+  MobileNavigationMenuTrigger,
+  NavigationMenuItem,
+} from '@/layouts/home/client';
 import { buttonVariants } from '@/components/ui/button';
 
 export interface HomeLayoutProps extends BaseLayoutProps {
@@ -115,7 +109,7 @@ export function Header({
         {navItems
           .filter((item) => !isSecondary(item))
           .map((item, i) => (
-            <NavbarLinkItem key={i} item={item} className="text-sm" />
+            <NavigationMenuLinkItem key={i} item={item} className="text-sm" />
           ))}
       </ul>
       <div className="flex flex-row items-center justify-end gap-1.5 flex-1 max-lg:hidden">
@@ -128,135 +122,77 @@ export function Header({
           ))}
         {themeSwitch.enabled !== false &&
           (themeSwitch.component ?? <ThemeToggle mode={themeSwitch?.mode} />)}
-        {i18n ? (
+        {i18n && (
           <LanguageToggle>
             <Languages className="size-5" />
           </LanguageToggle>
-        ) : null}
-        <div className="flex flex-row items-center empty:hidden">
+        )}
+        <ul className="flex flex-row gap-2 items-center empty:hidden">
           {navItems.filter(isSecondary).map((item, i) => (
-            <NavbarLinkItem key={i} item={item} />
+            <NavigationMenuLinkItem
+              key={i}
+              className={cn(
+                item.type === 'icon' && '-mx-1 first:ms-0 last:me-0',
+              )}
+              item={item}
+            />
           ))}
-        </div>
+        </ul>
       </div>
       <ul className="flex flex-row items-center ms-auto -me-1.5 lg:hidden">
         {searchToggle.enabled !== false &&
           (searchToggle.components?.sm ?? (
             <SearchToggle className="p-2" hideIfDisabled />
           ))}
-        <Menu>
-          <MenuTrigger
+        <NavigationMenuItem>
+          <MobileNavigationMenuTrigger
             aria-label="Toggle Menu"
             className={cn(
               buttonVariants({
                 size: 'icon',
                 color: 'ghost',
-                className: 'group',
+                className: 'group [&_svg]:size-5.5',
               }),
             )}
             enableHover={nav.enableHoverToOpen}
           >
-            <ChevronDown className="!size-5.5 transition-transform duration-300 group-data-[state=open]:rotate-180" />
-          </MenuTrigger>
-          <MenuContent className="sm:flex-row sm:items-center sm:justify-end">
+            <ChevronDown className="transition-transform duration-300 group-data-[state=open]:rotate-180" />
+          </MobileNavigationMenuTrigger>
+          <MobileNavigationMenuContent className="sm:flex-row sm:items-center sm:justify-end">
             {menuItems
               .filter((item) => !isSecondary(item))
               .map((item, i) => (
-                <MenuLinkItem key={i} item={item} className="sm:hidden" />
+                <MobileNavigationMenuLinkItem
+                  key={i}
+                  item={item}
+                  className="sm:hidden"
+                />
               ))}
-            <div className="-ms-1.5 flex flex-row items-center gap-1.5 max-sm:mt-2">
+            <div className="-ms-1.5 flex flex-row items-center gap-2 max-sm:mt-2">
               {menuItems.filter(isSecondary).map((item, i) => (
-                <MenuLinkItem key={i} item={item} className="-me-1.5" />
+                <MobileNavigationMenuLinkItem
+                  key={i}
+                  item={item}
+                  className={cn(item.type === 'icon' && '-mx-1 first:ms-0')}
+                />
               ))}
               <div role="separator" className="flex-1" />
-              {i18n ? (
+              {i18n && (
                 <LanguageToggle>
                   <Languages className="size-5" />
                   <LanguageToggleText />
                   <ChevronDown className="size-3 text-fd-muted-foreground" />
                 </LanguageToggle>
-              ) : null}
+              )}
               {themeSwitch.enabled !== false &&
                 (themeSwitch.component ?? (
                   <ThemeToggle mode={themeSwitch?.mode} />
                 ))}
             </div>
-          </MenuContent>
-        </Menu>
+          </MobileNavigationMenuContent>
+        </NavigationMenuItem>
       </ul>
     </Navbar>
-  );
-}
-
-function NavbarLinkItem({
-  item,
-  ...props
-}: {
-  item: LinkItemType;
-  className?: string;
-}) {
-  if (item.type === 'custom') return <div {...props}>{item.children}</div>;
-
-  if (item.type === 'menu') {
-    const children = item.items.map((child, j) => {
-      if (child.type === 'custom') {
-        return <Fragment key={j}>{child.children}</Fragment>;
-      }
-
-      const {
-        banner = child.icon ? (
-          <div className="w-fit rounded-md border bg-fd-muted p-1 [&_svg]:size-4">
-            {child.icon}
-          </div>
-        ) : null,
-        ...rest
-      } = child.menu ?? {};
-
-      return (
-        <NavbarMenuLink
-          key={`${j}-${child.url}`}
-          href={child.url}
-          external={child.external}
-          {...rest}
-        >
-          {rest.children ?? (
-            <>
-              {banner}
-              <p className="text-[15px] font-medium">{child.text}</p>
-              <p className="text-sm text-fd-muted-foreground empty:hidden">
-                {child.description}
-              </p>
-            </>
-          )}
-        </NavbarMenuLink>
-      );
-    });
-
-    return (
-      <NavbarMenu>
-        <NavbarMenuTrigger {...props}>
-          {item.url ? (
-            <Link href={item.url} external={item.external}>
-              {item.text}
-            </Link>
-          ) : (
-            item.text
-          )}
-        </NavbarMenuTrigger>
-        <NavbarMenuContent>{children}</NavbarMenuContent>
-      </NavbarMenu>
-    );
-  }
-
-  return (
-    <NavbarLink
-      {...props}
-      item={item}
-      variant={item.type}
-      aria-label={item.type === 'icon' ? item.label : undefined}
-    >
-      {item.type === 'icon' ? item.icon : item.text}
-    </NavbarLink>
   );
 }
 

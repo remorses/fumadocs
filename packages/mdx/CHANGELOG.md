@@ -1,5 +1,227 @@
 # next-docs-mdx
 
+## 14.0.2
+
+### Patch Changes
+
+- 59743c0: Use `remarkStructure().exportAs` option to export `structuredData`
+- 59743c0: only provide CJS fallback for Next.js
+- Updated dependencies [c3b8474]
+  - fumadocs-core@16.0.14
+
+## 14.0.1
+
+### Patch Changes
+
+- 52dabc3: Support type-safe collection generation
+  - fumadocs-core@16.0.13
+
+## 14.0.0
+
+### Major Changes
+
+- 7b450d6: **Change `postInstall()` signature to `postInstall({ configPath, outDir, ... })`**
+
+  This allows more options for `postInstall` command.
+
+- a312d3a: **Replace `getDefaultMDXOptions()` with `applyMdxPreset()`**
+
+  This allows Fumadocs MDX to support more presets in the future, and adjust presets for dynamic mode.
+
+  ```ts
+  // source.config.ts
+  import { defineCollections, applyMdxPreset } from 'fumadocs-mdx/config';
+  import { myPlugin } from './remark-plugin';
+
+  export const blog = defineCollections({
+    type: 'doc',
+    mdxOptions: applyMdxPreset({
+      remarkPlugins: [myPlugin],
+      // You can also pass a function to control the order of remark plugins.
+      remarkPlugins: (v) => [myPlugin, ...v],
+    }),
+  });
+  ```
+
+- bc93578: **Replace `lastModifiedTime` option with `lastModified` plugin.**
+
+  If you've `lastModifiedTime` option enabled before, migrate to the plugin instead.
+
+  ```ts
+  // source.config.ts
+  import { defineConfig } from 'fumadocs-mdx/config';
+  import lastModified from 'fumadocs-mdx/plugins/last-modified';
+
+  export default defineConfig({
+    plugins: [lastModified()],
+  });
+  ```
+
+- 2f7e4d8: **Drop support for multiple `dir` in same collection**
+
+  Consider using `files` instead for filtering files.
+
+  ```ts
+  // source.config.ts
+  import { defineDocs } from 'fumadocs-mdx/config';
+
+  export const docs = defineDocs({
+    dir: 'content/guides',
+    docs: {
+      files: ['./i-love-fumadocs/**/*.{md,mdx}'],
+    },
+  });
+  ```
+
+- a312d3a: **No longer generate `extractedReferences` by default**
+
+  You can enable it from `postprocess` option.
+
+  ```ts
+  // source.config.ts
+  import { defineDocs } from 'fumadocs-mdx/config';
+
+  export const docs = defineDocs({
+    docs: {
+      postprocess: {
+        extractLinkReferences: true,
+      },
+    },
+  });
+  ```
+
+- b963021: **[Vite] rename `generateIndexFile` option to `index`**
+
+### Patch Changes
+
+- 97722c6: Fix meta file validation on Bun.
+- b963021: [Internal] Make `index-file` a plugin and optimize re-generations.
+- Updated dependencies [c5c00e9]
+  - fumadocs-core@16.0.12
+
+## 13.0.8
+
+### Patch Changes
+
+- 58bf979: [Bun Loader] Support dynamic require of meta files
+- Updated dependencies [ff68f69]
+- Updated dependencies [00058c8]
+  - fumadocs-core@16.0.11
+
+## 13.0.7
+
+### Patch Changes
+
+- 30b1b11: Temporary workaround for `vite:json` plugin conflicts
+- Updated dependencies [733b01e]
+  - fumadocs-core@16.0.10
+
+## 13.0.6
+
+### Patch Changes
+
+- 40176ce: Support `disableMetaFile` option in Bun plugin
+  - fumadocs-core@16.0.9
+
+## 13.0.5
+
+### Patch Changes
+
+- ad38466: add support next.config.mts for mdx
+
+## 13.0.4
+
+### Patch Changes
+
+- 27fc4ed: [Internal] improve mutability of `LoadedConfig` for plugins
+- f5bc4aa: Fix Bun missing query strings
+- 61b90c8: Always transform meta files in collection, this includes runtime loaders like Node.js and Bun.
+- d1e43f4: Support re-generating index file when using runtime: bun | node
+- Updated dependencies [f97cd1e]
+- Updated dependencies [f7e15e2]
+  - fumadocs-core@16.0.7
+
+## 13.0.3
+
+### Patch Changes
+
+- cd087d2: fix hot reload
+- 94d1ad5: Support generating extra index file for browser (workaround for Cloudflare Vite issues)
+- Updated dependencies [b95b0cf]
+  - fumadocs-core@16.0.6
+
+## 13.0.2
+
+### Patch Changes
+
+- ee4ad3d: Always format file paths into POSIX for Vite
+
+## 13.0.1
+
+### Patch Changes
+
+- 56332df: Support plugins in Webpack loader environment: now plugins can apply changes on MDX options too.
+- 91add4f: Plugin `json-schema`: support inserting `$schema` to JSON files
+- cffd4c2: Lazy update index files on Next.js
+  - fumadocs-core@16.0.3
+
+## 13.0.0
+
+### Major Changes
+
+- 8d0c164: **Move `createMDXSource` and `resolveFiles` from `fumadocs-mdx` to `fumadocs-mdx/runtime/next`**
+- 3caa5cd: **Vite: move `source.generated.ts` to `.source/index.ts`**
+
+  **Why:**
+  - with Fumadocs MDX Plugins, we want to unify the output directory across Vite & Next.js.
+  - `source.generated.ts` looks ugly compared by `.source`.
+
+  **Migrate:**
+  - run dev server/typegen to generate a `.source` folder.
+  - import it over the original `source.generated.ts`.
+  - note that both docs and `create-fumadocs-app` are updated to `.source` folder.
+
+### Minor Changes
+
+- 29ce826: Support JSON Schema plugin (`fumadocs-mdx/plugins/json-schema`)
+- 3caa5cd: **Support Plugins API**
+
+  Fumadocs MDX is mostly a bundler plugin meant to be used with tools like Vite and Turbopack.
+
+  With Fumadocs MDX Plugins, you can extend Fumadocs MDX without worrying the underlying bundler.
+  It is designed for:
+  - Generate files from config (e.g. types, index files, JSON schemas)
+  - Modify received config
+
+### Patch Changes
+
+- 81fa875: Fix `includeProcessedMarkdown` cannot stringify MDX nodes
+- 575cfb8: Include unravel plugin into `remark-include` parsing step, this ensures the parsed results are consistent with normal MDX.js processor output.
+- 1f1c787: Add `useContent` API to client loader for avoiding Lint errors
+- 9051574: Support `postprocess.includeMDAST` option
+- a5df956: Support `runtime: bun` and `runtime: node` in Vite index file generation
+- 5210f18: Support Fumadocs 16 in `peerDependencies`.
+- Updated dependencies [230c6bf]
+- Updated dependencies [851897c]
+- Updated dependencies [4049ccc]
+- Updated dependencies [429c41a]
+- Updated dependencies [5210f18]
+- Updated dependencies [cbc93e9]
+- Updated dependencies [42f09c3]
+- Updated dependencies [55afd8a]
+- Updated dependencies [5210f18]
+  - fumadocs-core@16.0.0
+  - @fumadocs/mdx-remote@1.4.3
+
+## 12.0.3
+
+### Patch Changes
+
+- a55177c: Remove `Override` type utility on output collection types
+- Updated dependencies [ce2be59]
+- Updated dependencies [31b9494]
+  - fumadocs-core@15.8.4
+
 ## 12.0.2
 
 ### Patch Changes

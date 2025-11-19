@@ -1,6 +1,5 @@
 CHANGELOG.md
 pnpm-lock.yaml
-.changeset/*.md
 .github/**/*.md
 
 packages/create-app/versions.json
@@ -13,7 +12,6 @@ apps/docs/shaders/*
 
 out
 .content-collections
-source.generated.ts
 
 apps/docs/content/docs/ui/museum/*.mdx
 !apps/docs/content/docs/ui/museum/index.mdx
@@ -32,3 +30,4 @@ packages/mdx-remote/test/fixtures/**/*.js
 packages/mdx-remote/test/fixtures/**/*.json
 packages/core/test/fixtures/page-trees/**/*.json
 build/
+routeTree.gen.ts

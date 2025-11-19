@@ -2,15 +2,22 @@ import * as path from 'node:path';
 import type { Image, Root } from 'mdast';
 import type { Transformer } from 'unified';
 import { visit } from 'unist-util-visit';
-import { imageSize } from 'image-size';
 import type { MdxjsEsm } from 'mdast-util-mdxjs-esm';
 import type { ISizeCalculationResult } from 'image-size/types/interface';
-import { imageSizeFromFile } from 'image-size/fromFile';
 import type { MdxJsxFlowElement } from 'mdast-util-mdx-jsx';
 import { fileURLToPath } from 'node:url';
 
 const VALID_BLUR_EXT = ['.jpeg', '.png', '.webp', '.avif', '.jpg'];
 const EXTERNAL_URL_REGEX = /^https?:\/\//;
+
+type ExternalImageOptions =
+  | {
+      /**
+       * timeout for fetching remote images (in milliseconds)
+       */
+      timeout?: number;
+    }
+  | boolean;
 
 export interface RemarkImageOptions {
   /**
@@ -56,7 +63,7 @@ export interface RemarkImageOptions {
    *
    * @defaultValue true
    */
-  external?: boolean;
+  external?: ExternalImageOptions;
 }
 
 type Source =
@@ -149,9 +156,7 @@ export function remarkImage({
         return out;
       }
 
-      if (src.type === 'url' && !external) return;
-
-      const size = await getImageSize(src).catch((e) => {
+      const size = await getImageSize(src, external).catch((e) => {
         throw new Error(
           `[Remark Image] Failed obtain image size for ${node.url} (public directory configured as ${publicDir})`,
           {
@@ -159,6 +164,8 @@ export function remarkImage({
           },
         );
       });
+
+      if (!size) return;
 
       return {
         type: 'mdxJsxFlowElement',
@@ -306,15 +313,27 @@ function parseSrc(
   };
 }
 
-async function getImageSize(src: Source): Promise<ISizeCalculationResult> {
-  if (src.type === 'file') return imageSizeFromFile(src.file);
+async function getImageSize(
+  src: Source,
+  onExternal: ExternalImageOptions,
+): Promise<ISizeCalculationResult | undefined> {
+  if (src.type === 'file') {
+    const { imageSizeFromFile } = await import('image-size/fromFile');
+    return imageSizeFromFile(src.file);
+  }
+  if (onExternal === false) return;
 
-  const res = await fetch(src.url);
+  const { timeout } = typeof onExternal === 'object' ? onExternal : {};
+  const res = await fetch(src.url, {
+    signal:
+      typeof timeout === 'number' ? AbortSignal.timeout(timeout) : undefined,
+  });
   if (!res.ok) {
     throw new Error(
       `[Remark Image] Failed to fetch ${src.url} (${res.status}): ${await res.text()}`,
     );
   }
 
+  const { imageSize } = await import('image-size');
   return imageSize(new Uint8Array(await res.arrayBuffer()));
 }

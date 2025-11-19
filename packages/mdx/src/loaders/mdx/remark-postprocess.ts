@@ -3,12 +3,17 @@ import type { Root, RootContent } from 'mdast';
 import { visit } from 'unist-util-visit';
 import { toMarkdown } from 'mdast-util-to-markdown';
 import { valueToEstree } from 'estree-util-value-to-estree';
+import { removePosition } from 'unist-util-remove-position';
+import remarkMdx from 'remark-mdx';
+import { flattenNode } from './mdast-utils';
 
 export interface ExtractedReference {
   href: string;
 }
 
 export interface PostprocessOptions {
+  _format: 'md' | 'mdx';
+
   /**
    * Properties to export from `vfile.data`
    */
@@ -18,6 +23,20 @@ export interface PostprocessOptions {
    * stringify MDAST and export via `_markdown`.
    */
   includeProcessedMarkdown?: boolean;
+
+  /**
+   * extract link references, export via `extractedReferences`.
+   */
+  extractLinkReferences?: boolean;
+
+  /**
+   * store MDAST and export via `_mdast`.
+   */
+  includeMDAST?:
+    | boolean
+    | {
+        removePosition?: boolean;
+      };
 }
 
 /**
@@ -27,47 +46,87 @@ export interface PostprocessOptions {
 export function remarkPostprocess(
   this: Processor,
   {
+    _format,
     includeProcessedMarkdown = false,
+    includeMDAST = false,
+    extractLinkReferences = false,
     valueToExport = [],
-  }: PostprocessOptions = {},
+  }: PostprocessOptions,
 ): Transformer<Root, Root> {
+  let _stringifyProcessor: Processor | undefined;
+  const getStringifyProcessor = () => {
+    return (_stringifyProcessor ??=
+      _format === 'mdx'
+        ? this
+        : // force Markdown processor to stringify MDX nodes
+          this().use(remarkMdx).freeze());
+  };
+
   return (tree, file) => {
-    let title: string | undefined;
-    const urls: ExtractedReference[] = [];
-
-    visit(tree, ['heading', 'link'], (node) => {
-      if (node.type === 'heading' && node.depth === 1) {
-        title = flattenNode(node);
-      }
-
-      if (node.type !== 'link') return;
-
-      urls.push({
-        href: node.url,
+    const frontmatter = (file.data.frontmatter ??= {});
+    if (!frontmatter.title) {
+      visit(tree, 'heading', (node) => {
+        if (node.depth === 1) {
+          frontmatter.title = flattenNode(node);
+          return false;
+        }
       });
+    }
 
-      return 'skip';
+    file.data['mdx-export'] ??= [];
+    file.data['mdx-export'].push({
+      name: 'frontmatter',
+      value: frontmatter,
     });
 
-    if (title) {
-      file.data.frontmatter ??= {};
+    if (extractLinkReferences) {
+      const urls: ExtractedReference[] = [];
 
-      if (!file.data.frontmatter.title) file.data.frontmatter.title = title;
-    }
+      visit(tree, 'link', (node) => {
+        urls.push({
+          href: node.url,
+        });
+        return 'skip';
+      });
 
-    file.data.extractedReferences = urls;
-
-    if (includeProcessedMarkdown) {
-      file.data._markdown = toMarkdown(tree, {
-        ...this.data('settings'),
-        // from https://github.com/remarkjs/remark/blob/main/packages/remark-stringify/lib/index.js
-        extensions: this.data('toMarkdownExtensions') || [],
+      file.data['mdx-export'].push({
+        name: 'extractedReferences',
+        value: urls,
       });
     }
 
-    for (const { name, value } of file.data['mdx-export'] ?? []) {
+    if (includeProcessedMarkdown) {
+      const processor = getStringifyProcessor();
+      const markdown = toMarkdown(tree, {
+        ...processor.data('settings'),
+        // from https://github.com/remarkjs/remark/blob/main/packages/remark-stringify/lib/index.js
+        extensions: processor.data('toMarkdownExtensions') || [],
+      });
+
+      file.data['mdx-export'].push({
+        name: '_markdown',
+        value: markdown,
+      });
+    }
+
+    if (includeMDAST) {
+      const options = includeMDAST === true ? {} : includeMDAST;
+      const mdast = JSON.stringify(
+        options.removePosition ? removePosition(structuredClone(tree)) : tree,
+      );
+
+      file.data['mdx-export'].push({
+        name: '_mdast',
+        value: mdast,
+      });
+    }
+
+    for (const { name, value } of file.data['mdx-export']) {
       tree.children.unshift(getMdastExport(name, value));
     }
+
+    // reset the data to reduce memory usage
+    file.data['mdx-export'] = [];
 
     for (const name of valueToExport) {
       if (!(name in file.data)) continue;
@@ -115,13 +174,4 @@ function getMdastExport(name: string, value: unknown): RootContent {
       },
     },
   };
-}
-
-function flattenNode(node: RootContent): string {
-  if ('children' in node)
-    return node.children.map((child) => flattenNode(child)).join('');
-
-  if ('value' in node) return node.value;
-
-  return '';
 }

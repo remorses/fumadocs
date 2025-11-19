@@ -2,9 +2,9 @@ import { createFileRoute, notFound } from '@tanstack/react-router';
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
 import { createServerFn } from '@tanstack/react-start';
 import { source } from '@/lib/source';
-import type { PageTree } from 'fumadocs-core/server';
+import type * as PageTree from 'fumadocs-core/page-tree';
 import { useMemo } from 'react';
-import { docs } from '../../../source.generated';
+import browserCollections from 'fumadocs-mdx:collections/browser';
 import {
   DocsBody,
   DocsDescription,
@@ -12,19 +12,19 @@ import {
   DocsTitle,
 } from 'fumadocs-ui/page';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
-import { createClientLoader } from 'fumadocs-mdx/runtime/vite';
 import { baseOptions } from '@/lib/layout.shared';
 
 export const Route = createFileRoute('/docs/$')({
   component: Page,
   loader: async ({ params }) => {
-    const data = await loader({ data: params._splat?.split('/') ?? [] });
+    const slugs = params._splat?.split('/') ?? [];
+    const data = await serverLoader({ data: slugs });
     await clientLoader.preload(data.path);
     return data;
   },
 });
 
-const loader = createServerFn({
+const serverLoader = createServerFn({
   method: 'GET',
 })
   .inputValidator((slugs: string[]) => slugs)
@@ -38,8 +38,7 @@ const loader = createServerFn({
     };
   });
 
-const clientLoader = createClientLoader(docs.doc, {
-  id: 'docs',
+const clientLoader = browserCollections.docs.createClientLoader({
   component({ toc, frontmatter, default: MDX }) {
     return (
       <DocsPage toc={toc}>
@@ -72,28 +71,35 @@ function Page() {
   );
 }
 
-function transformPageTree(tree: PageTree.Folder): PageTree.Folder {
-  function transform<T extends PageTree.Item | PageTree.Separator>(item: T) {
-    if (typeof item.icon !== 'string') return item;
+function transformPageTree(root: PageTree.Root): PageTree.Root {
+  function mapNode<T extends PageTree.Node>(item: T): T {
+    if (typeof item.icon === 'string') {
+      item = {
+        ...item,
+        icon: (
+          <span
+            dangerouslySetInnerHTML={{
+              __html: item.icon,
+            }}
+          />
+        ),
+      };
+    }
 
-    return {
-      ...item,
-      icon: (
-        <span
-          dangerouslySetInnerHTML={{
-            __html: item.icon,
-          }}
-        />
-      ),
-    };
+    if (item.type === 'folder') {
+      return {
+        ...item,
+        index: item.index ? mapNode(item.index) : undefined,
+        children: item.children.map(mapNode),
+      };
+    }
+
+    return item;
   }
 
   return {
-    ...tree,
-    index: tree.index ? transform(tree.index) : undefined,
-    children: tree.children.map((item) => {
-      if (item.type === 'folder') return transformPageTree(item);
-      return transform(item);
-    }),
+    ...root,
+    children: root.children.map(mapNode),
+    fallback: root.fallback ? transformPageTree(root.fallback) : undefined,
   };
 }

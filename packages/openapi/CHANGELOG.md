@@ -1,5 +1,442 @@
 # @fuma-docs/openapi
 
+## 10.0.9
+
+### Patch Changes
+
+- Updated dependencies [c3b8474]
+  - fumadocs-core@16.0.14
+  - fumadocs-ui@16.0.14
+
+## 10.0.8
+
+### Patch Changes
+
+- Updated dependencies [88dae4d]
+  - fumadocs-ui@16.0.13
+  - fumadocs-core@16.0.13
+
+## 10.0.7
+
+### Patch Changes
+
+- Updated dependencies [c5c00e9]
+  - fumadocs-core@16.0.12
+  - fumadocs-ui@16.0.12
+
+## 10.0.6
+
+### Patch Changes
+
+- e792e43: hotfix recursive `oneOf` schema UI
+
+## 10.0.5
+
+### Patch Changes
+
+- Updated dependencies [ff68f69]
+- Updated dependencies [00058c8]
+  - fumadocs-core@16.0.11
+  - fumadocs-ui@16.0.11
+
+## 10.0.4
+
+### Patch Changes
+
+- 0ada792: Enhance Schema UI to display inherited properties for `oneOf`.
+- Updated dependencies [112e8d9]
+- Updated dependencies [733b01e]
+  - fumadocs-ui@16.0.10
+  - fumadocs-core@16.0.10
+
+## 10.0.3
+
+### Patch Changes
+
+- 9a7fd08: Improve integer fields handling
+- Updated dependencies [2eef888]
+  - fumadocs-ui@16.0.9
+  - fumadocs-core@16.0.9
+
+## 10.0.2
+
+### Patch Changes
+
+- 6d0ddb9: fix unset values on number & boolean fields
+
+## 10.0.1
+
+### Patch Changes
+
+- 2347d33: Fix Scalar integration
+
+## 10.0.0
+
+### Major Changes
+
+- ccae0ac: Rename option `content.showExampleInFields` to `schemaUI.showExample`.
+- 87cdffa: **Drop `renderer` & `fields` API**
+
+  Fumadocs OpenAPI now expects per-feature customizations, dropping the old centralized `renderer` API.
+
+  ```ts
+  // components/api-page.tsx
+  import { openapi } from '@/lib/openapi';
+  import { createAPIPage } from 'fumadocs-openapi/ui';
+
+  export const APIPage = createAPIPage(openapi, {
+    // e.g. customise render functions
+    content: {
+      renderResponseTabs,
+      renderAPIExampleLayout,
+      renderAPIExampleUsageTabs,
+    },
+  });
+  ```
+
+  For migrating the `fields` option of Playground, you can use `render*` APIs on client configs.
+
+  ```ts
+  // components/api-page.client.tsx
+  'use client';
+  import { defineClientConfig } from 'fumadocs-openapi/ui/client';
+
+  export default defineClientConfig({
+    playground: {
+      renderParameterField: (fieldName, field) => ...
+    }
+  })
+  ```
+
+  You can customise the renderers of different layouts:
+
+  ```tsx
+  // components/api-page.tsx
+  import { openapi } from '@/lib/openapi';
+  import { createAPIPage } from 'fumadocs-openapi/ui';
+
+  export const APIPage = createAPIPage(openapi, {
+    content: {
+      renderResponseTabs: (tabs) => <div></div>,
+      renderAPIExampleLayout: ({ selector, usageTabs, responseTabs }) => (
+        <div></div>
+      ),
+      renderAPIExampleUsageTabs: (generators) => <div></div>,
+      renderPageLayout: ({ operations, webhooks }) => <div></div>,
+      renderOperationLayout: (slots) => <div></div>,
+      renderWebhookLayout: ({
+        header,
+        authSchemes,
+        paremeters,
+        body,
+        responses,
+        callbacks,
+      }) => <div></div>,
+    },
+  });
+  ```
+
+- 40d0fa3: **Expect OpenAPI server to use `generateFiles()`**
+
+  File generation is now part of OpenAPI server, the `input` field requires the server instead of string array.
+
+  Before:
+
+  ```ts
+  import { openapi } from '@/lib/openapi';
+
+  void generateFiles({
+    input: ['./products.yaml'],
+    output: './content/docs',
+  });
+  ```
+
+  After:
+
+  ```ts
+  import { generateFiles } from 'fumadocs-openapi';
+  import { openapi } from '@/lib/openapi';
+
+  void generateFiles({
+    input: openapi,
+    output: './content/docs',
+  });
+  ```
+
+- aa4e1ad: **Redesign `createOpenAPI` usage**
+  1. Isolate API page and API server.
+
+  Before:
+
+  ```ts
+  // lib/openapi.ts
+  import { createOpenAPI } from 'fumadocs-openapi/server';
+  import path from 'node:path';
+
+  export const openapi = createOpenAPI({
+    input: [path.resolve('./scalar.yaml')],
+    proxyUrl: '/api/proxy',
+
+    mediaAdapters: { ... },
+    shikiOptions: {
+      themes: {
+        dark: 'vesper',
+        light: 'vitesse-light',
+      },
+    },
+  });
+  ```
+
+  After:
+
+  ```ts
+  // lib/openapi.ts
+  import { createOpenAPI } from 'fumadocs-openapi/server';
+  import path from 'node:path';
+
+  export const openapi = createOpenAPI({
+    input: [path.resolve('./scalar.yaml')],
+    proxyUrl: '/api/proxy',
+  });
+  ```
+
+  ```ts
+  // components/api-page.tsx
+  import { openapi } from '@/lib/openapi';
+  import { createAPIPage } from 'fumadocs-openapi/ui';
+
+  export const APIPage = createAPIPage(openapi, {
+    mediaAdapters: { ... },
+    shikiOptions: {
+      themes: {
+        dark: 'vesper',
+        light: 'vitesse-light',
+      },
+    },
+  });
+  ```
+
+  2. Remove `disablePlayground` from `createAPIPage()`, use `playground.enabled` instead:
+
+  ```ts
+  // components/api-page.tsx
+  import { openapi } from '@/lib/openapi';
+  import { createAPIPage } from 'fumadocs-openapi/ui';
+
+  export const APIPage = createAPIPage(openapi, {
+    playground: {
+      enabled: false,
+    },
+  });
+  ```
+
+  3. Support client config:
+
+  ```tsx
+  // components/api-page.tsx
+  import { openapi } from '@/lib/openapi';
+  import { createAPIPage } from 'fumadocs-openapi/ui';
+  import client from './api-page.client';
+
+  export const APIPage = createAPIPage(openapi, {
+    client,
+  });
+  ```
+
+  ```tsx
+  // components/api-page.client.tsx
+  'use client';
+  import { defineClientConfig } from 'fumadocs-openapi/ui/client';
+
+  export default defineClientConfig({
+    playground: {
+      transformAuthInputs: (inputs) => [
+        ...inputs,
+        {
+          fieldName: 'auth.tests',
+          children: <div>Tests</div>,
+          defaultValue: '',
+        },
+      ],
+    },
+  });
+  ```
+
+  4. Prefer client config for `adapter.client`:
+
+  Forwarding client-side media adapters is also done with `api-page.client.tsx`:
+
+  ```tsx
+  // components/api-page.tsx
+  import { openapi } from '@/lib/openapi';
+  import { createAPIPage } from 'fumadocs-openapi/ui';
+  import { adapters } from './my-media-adapters';
+  import client from './api-page.client';
+
+  export const APIPage = createAPIPage(openapi, {
+    client,
+    mediaAdapters: adapters,
+  });
+  ```
+
+  ```tsx
+  // components/api-page.client.tsx
+  'use client';
+  import { defineClientConfig } from 'fumadocs-openapi/ui/client';
+  import { adapters } from './my-media-adapters';
+
+  export default defineClientConfig({
+    mediaAdapters: adapters,
+  });
+  ```
+
+### Minor Changes
+
+- 189028a: Add `storageKeyPrefix` option to isolate `localStorage` for multiple API instances
+
+  When using multiple `createOpenAPI()` instances in the same application, the server selection state would bleed between different APIs because they all shared the same storage key prefix.
+  Set a prefix to avoid this.
+
+  **Usage:**
+
+  ```tsx
+  // components/api-page.client.tsx
+  'use client';
+  import { defineClientConfig } from 'fumadocs-openapi/ui/client';
+
+  export default defineClientConfig({
+    storageKeyPrefix: 'fumadocs-openapi-custom-',
+  });
+  ```
+
+### Patch Changes
+
+- c1026b8: Fix TypeScript schema wrong output.
+
+  Note: code formatting has been disabled to improve performance.
+
+- ca09b6a: Core: Support accessing MDX plugins separately at `fumadocs-core/mdx-plugins/*`
+- Updated dependencies [bc97236]
+- Updated dependencies [ca09b6a]
+- Updated dependencies [c0df2c4]
+- Updated dependencies [117ad86]
+  - fumadocs-core@16.0.8
+  - fumadocs-ui@16.0.8
+
+## 9.7.3
+
+### Patch Changes
+
+- Updated dependencies [f97cd1e]
+- Updated dependencies [f7e15e2]
+  - fumadocs-core@16.0.7
+  - fumadocs-ui@16.0.7
+
+## 9.7.2
+
+### Patch Changes
+
+- f0111ba: no longer generate default values for optional params
+- 9845ffc: Support `+variant` media types
+- Updated dependencies [b95b0cf]
+  - fumadocs-core@16.0.6
+  - fumadocs-ui@16.0.6
+
+## 9.7.1
+
+### Patch Changes
+
+- Updated dependencies [8221785]
+  - fumadocs-core@16.0.5
+  - fumadocs-ui@16.0.5
+
+## 9.7.0
+
+### Minor Changes
+
+- ef73516: Support `per: custom`
+
+## 9.6.5
+
+### Patch Changes
+
+- d9d73f3: Support `groupBy` function value
+- Updated dependencies [99971c7]
+  - fumadocs-core@16.0.4
+  - fumadocs-ui@16.0.4
+
+## 9.6.4
+
+### Patch Changes
+
+- fumadocs-core@16.0.3
+- fumadocs-ui@16.0.3
+
+## 9.6.3
+
+### Patch Changes
+
+- cc179fb: Generate Python objects for code examples
+
+## 9.6.2
+
+### Patch Changes
+
+- Updated dependencies [d511232]
+  - fumadocs-core@16.0.2
+  - fumadocs-ui@16.0.2
+
+## 9.6.1
+
+### Patch Changes
+
+- Updated dependencies [45f0c1f]
+  - fumadocs-core@16.0.1
+  - fumadocs-ui@16.0.1
+
+## 9.6.0
+
+### Minor Changes
+
+- 8ebd28f: _Redesign schema UI to leverage CSR_
+
+  Fumadocs OpenAPI now uses CSR to render recursive components, hugely reducing the size of page for highly nested JSON schemas & improve performance.
+
+- ef9737d: Add reset value button to non-required fields
+
+### Patch Changes
+
+- 21fcc0b: Support `content.showExampleInFields` option
+- 4a36701: avoid render-time form modifications
+- 5210f18: Support Fumadocs 16 in `peerDependencies`.
+- Updated dependencies [1494340]
+- Updated dependencies [230c6bf]
+- Updated dependencies [851897c]
+- Updated dependencies [de0ce6d]
+- Updated dependencies [4049ccc]
+- Updated dependencies [0ed0ca6]
+- Updated dependencies [429c41a]
+- Updated dependencies [5210f18]
+- Updated dependencies [cbc93e9]
+- Updated dependencies [42f09c3]
+- Updated dependencies [55afd8a]
+- Updated dependencies [5966e23]
+  - fumadocs-ui@16.0.0
+  - fumadocs-core@16.0.0
+
+## 9.5.0
+
+### Minor Changes
+
+- 5cb199f: Support generating virtual pages for Source API
+
+### Patch Changes
+
+- Updated dependencies [ce2be59]
+- Updated dependencies [31b9494]
+  - fumadocs-core@15.8.4
+  - fumadocs-ui@15.8.4
+
 ## 9.4.1
 
 ### Patch Changes

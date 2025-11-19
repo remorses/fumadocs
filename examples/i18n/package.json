@@ -4,22 +4,23 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "next dev --turbo",
-    "start": "next start"
+    "dev": "next dev",
+    "start": "next start",
+    "types:check": "fumadocs-mdx && next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "@orama/tokenizers": "^3.1.14",
+    "@orama/tokenizers": "^3.1.16",
     "fumadocs-core": "workspace:*",
     "fumadocs-mdx": "workspace:*",
     "fumadocs-ui": "workspace:*",
-    "next": "15.5.4",
+    "next": "16.0.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@types/mdx": "^2.0.13",
-    "@types/react": "^19.2.0",
-    "@types/react-dom": "^19.2.0",
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19.2.3",
     "typescript": "^5.9.3"
   }
 }

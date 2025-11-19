@@ -1,5 +1,70 @@
 # create-next-docs-app
 
+## 16.0.17
+
+## 16.0.16
+
+## 16.0.15
+
+## 16.0.14
+
+## 16.0.13
+
+## 16.0.12
+
+## 16.0.11
+
+## 16.0.10
+
+## 16.0.9
+
+## 16.0.8
+
+## 16.0.7
+
+## 16.0.6
+
+### Patch Changes
+
+- 3668baf: bump deps & update templates
+- eece4f8: Support Tanstack Start SPA
+
+## 16.0.5
+
+## 16.0.4
+
+### Patch Changes
+
+- 33c4129: Support `CI` environment variable, remove negatives options from CLI usage
+
+## 16.0.3
+
+### Patch Changes
+
+- 4500ce0: Use plugins for `create()` to configure linters & app dir
+- e051a7f: Support Biome for other templates
+- b171be1: Support `CI` environment variable, remove negatives options from CLI usage
+- 0ac2f82: Use smarter AST transform for modifying app configs
+- 0ac2f82: fix type info lost on `create`
+
+## 16.0.2
+
+### Patch Changes
+
+- 91d7509: Support Orama Cloud template
+- d20e90a: Add SPA template for React Router
+
+## 16.0.1
+
+## 16.0.0
+
+### Patch Changes
+
+- 4c535f3: fix outdated Tanstack Start template
+- 5210f18: Support Fumadocs 16 in `peerDependencies`.
+
+## 15.8.4
+
 ## 15.8.3
 
 ### Patch Changes

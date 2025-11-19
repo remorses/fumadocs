@@ -1,11 +1,63 @@
-import { type HTMLAttributes, type RefObject, useEffect, useRef } from 'react';
-import * as Primitive from 'fumadocs-core/toc';
-import { useOnChange } from 'fumadocs-core/utils/use-on-change';
-import { useEffectEvent } from 'fumadocs-core/utils/use-effect-event';
+import {
+  type HTMLAttributes,
+  type RefObject,
+  useEffect,
+  useEffectEvent,
+  useRef,
+} from 'react';
+import { useActiveAnchors } from 'fumadocs-core/toc';
 
-export type TOCThumb = [top: number, height: number];
+type TocThumb = [top: number, height: number];
 
-function calc(container: HTMLElement, active: string[]): TOCThumb {
+interface RefProps {
+  containerRef: RefObject<HTMLElement | null>;
+}
+
+export function TocThumb({
+  containerRef,
+  ...props
+}: HTMLAttributes<HTMLDivElement> & RefProps) {
+  const thumbRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <>
+      <div ref={thumbRef} role="none" {...props} />
+      <Updater containerRef={containerRef} thumbRef={thumbRef} />
+    </>
+  );
+}
+
+function Updater({
+  containerRef,
+  thumbRef,
+}: RefProps & { thumbRef: RefObject<HTMLElement | null> }) {
+  const active = useActiveAnchors();
+  const onPrint = useEffectEvent(() => {
+    if (!containerRef.current || !thumbRef.current) return;
+
+    update(thumbRef.current, calc(containerRef.current, active));
+  });
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const container = containerRef.current;
+
+    const observer = new ResizeObserver(onPrint);
+    observer.observe(container);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [containerRef]);
+
+  if (containerRef.current && thumbRef.current) {
+    update(thumbRef.current, calc(containerRef.current, active));
+  }
+
+  return null;
+}
+
+function calc(container: HTMLElement, active: string[]): TocThumb {
   if (active.length === 0 || container.clientHeight === 0) {
     return [0, 0];
   }
@@ -30,44 +82,7 @@ function calc(container: HTMLElement, active: string[]): TOCThumb {
   return [upper, lower - upper];
 }
 
-function update(element: HTMLElement, info: TOCThumb): void {
+function update(element: HTMLElement, info: TocThumb): void {
   element.style.setProperty('--fd-top', `${info[0]}px`);
   element.style.setProperty('--fd-height', `${info[1]}px`);
-}
-
-export function TocThumb({
-  containerRef,
-  ...props
-}: HTMLAttributes<HTMLDivElement> & {
-  containerRef: RefObject<HTMLElement | null>;
-}) {
-  const active = Primitive.useActiveAnchors();
-  const thumbRef = useRef<HTMLDivElement>(null);
-
-  const onResize = useEffectEvent(() => {
-    if (!containerRef.current || !thumbRef.current) return;
-
-    update(thumbRef.current, calc(containerRef.current, active));
-  });
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const container = containerRef.current;
-
-    onResize();
-    const observer = new ResizeObserver(onResize);
-    observer.observe(container);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [containerRef]);
-
-  useOnChange(active, () => {
-    if (!containerRef.current || !thumbRef.current) return;
-
-    update(thumbRef.current, calc(containerRef.current, active));
-  });
-
-  return <div ref={thumbRef} role="none" {...props} />;
 }

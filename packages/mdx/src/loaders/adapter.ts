@@ -8,14 +8,15 @@ import { parse } from 'node:querystring';
 import { ValidationError } from '@/utils/validation';
 import path from 'node:path';
 import type { LoaderContext } from 'webpack';
+import { readFileSync } from 'node:fs';
 
 export interface LoaderInput {
   development: boolean;
   compiler: CompilerOptions;
 
-  source: string;
   filePath: string;
   query: Record<string, string | string[] | undefined>;
+  getSource: () => string | Promise<string>;
 }
 
 export interface LoaderOutput {
@@ -23,67 +24,103 @@ export interface LoaderOutput {
   map?: unknown;
 }
 
-export type Loader = (input: LoaderInput) => Promise<LoaderOutput>;
+type Awaitable<T> = T | Promise<T>;
 
-export function toNode(
-  loader: Loader,
-  filterByPath: (filePath: string) => boolean,
-): LoadHook {
+export interface Loader {
+  /**
+   * Filter file paths, the input can be either a file URL or file path.
+   *
+   * Must take resource query into consideration.
+   */
+  test?: RegExp;
+
+  /**
+   * Transform input into JavaScript.
+   *
+   * Returns:
+   * - `LoaderOutput`: JavaScript code & source map.
+   * - `null`: skip the loader. Fallback to default behaviour if possible, otherwise the adapter will try workarounds.
+   */
+  load: (input: LoaderInput) => Awaitable<LoaderOutput | null>;
+
+  bun?: {
+    /**
+     * 1. Bun doesn't allow `null` in loaders.
+     * 2. Bun requires sync result to support dynamic require().
+     */
+    load?: (source: string, input: LoaderInput) => Awaitable<Bun.OnLoadResult>;
+  };
+}
+
+export function toNode(loader: Loader): LoadHook {
   return async (url, _context, nextLoad): Promise<LoadFnOutput> => {
-    if (!url.startsWith('file:///')) return nextLoad(url);
+    if (url.startsWith('file:///') && (!loader.test || loader.test.test(url))) {
+      const parsedUrl = new URL(url);
+      const filePath = fileURLToPath(parsedUrl);
 
-    const parsedUrl = new URL(url);
-    const filePath = fileURLToPath(parsedUrl);
-
-    if (filterByPath(filePath)) {
-      const source = (await fs.readFile(filePath)).toString();
-
-      const result = await loader({
+      const result = await loader.load({
         filePath,
         query: Object.fromEntries(parsedUrl.searchParams.entries()),
-        source,
+        async getSource() {
+          return (await fs.readFile(filePath)).toString();
+        },
         development: false,
         compiler: {
           addDependency() {},
         },
       });
 
-      return {
-        source: result.code,
-        format: 'module',
-        shortCircuit: true,
-      };
+      if (result) {
+        return {
+          source: result.code,
+          format: 'module',
+          shortCircuit: true,
+        };
+      }
     }
 
     return nextLoad(url);
   };
 }
 
-export type ViteLoader = (
-  this: TransformPluginContext,
-  file: string,
-  query: string,
-  value: string,
-) => Promise<TransformResult | null>;
+export interface ViteLoader {
+  filter: (id: string) => boolean;
+
+  transform: (
+    this: TransformPluginContext,
+    value: string,
+    id: string,
+  ) => Promise<TransformResult | null>;
+}
 
 export function toVite(loader: Loader): ViteLoader {
-  return async function (file, query, value) {
-    const result = await loader({
-      filePath: file,
-      query: parse(query),
-      source: value,
-      development: this.environment.mode === 'dev',
-      compiler: {
-        addDependency: (file) => {
-          this.addWatchFile(file);
-        },
-      },
-    });
+  return {
+    filter(id) {
+      return !loader.test || loader.test.test(id);
+    },
+    async transform(value, id) {
+      const [file, query = ''] = id.split('?', 2);
 
-    return {
-      code: result.code,
-      map: result.map as SourceMap,
-    };
+      const result = await loader.load({
+        filePath: file,
+        query: parse(query),
+        getSource() {
+          return value;
+        },
+        development: this.environment.mode === 'dev',
+        compiler: {
+          addDependency: (file) => {
+            this.addWatchFile(file);
+          },
+        },
+      });
+
+      if (result === null) return null;
+      return {
+        code: result.code,
+        map: result.map as SourceMap,
+      };
+    },
   };
 }
 
@@ -93,21 +130,30 @@ export type WebpackLoader = (
   callback: LoaderContext<unknown>['callback'],
 ) => Promise<void>;
 
+/**
+ * need to handle the `test` regex in Webpack config instead.
+ */
 export function toWebpack(loader: Loader): WebpackLoader {
   return async function (source, callback) {
     try {
-      const result = await loader({
+      const result = await loader.load({
         filePath: this.resourcePath,
         query: parse(this.resourceQuery.slice(1)),
-        source,
+        getSource() {
+          return source;
+        },
         development: this.mode === 'development',
         compiler: this,
       });
 
-      callback(undefined, result.code, result.map as string);
+      if (result === null) {
+        callback(undefined, source);
+      } else {
+        callback(undefined, result.code, result.map as string);
+      }
     } catch (error) {
       if (error instanceof ValidationError) {
-        return callback(new Error(error.toStringFormatted()));
+        return callback(new Error(await error.toStringFormatted()));
       }
 
       if (!(error instanceof Error)) throw error;
@@ -116,5 +162,45 @@ export function toWebpack(loader: Loader): WebpackLoader {
       error.message = `${fpath}:${error.name}: ${error.message}`;
       callback(error);
     }
+  };
+}
+
+export function toBun(loader: Loader) {
+  function toResult(output: LoaderOutput | null): Bun.OnLoadResult {
+    // it errors, treat this as an exception
+    if (!output) return;
+
+    return {
+      contents: output.code,
+      loader: 'js',
+    };
+  }
+
+  return (build: Bun.PluginBuilder) => {
+    // avoid using async here, because it will cause dynamic require() to fail
+    build.onLoad({ filter: loader.test ?? /.+/ }, (args) => {
+      const [filePath, query = ''] = args.path.split('?', 2);
+      const input: LoaderInput = {
+        async getSource() {
+          return Bun.file(filePath).text();
+        },
+        query: parse(query),
+        filePath,
+        development: false,
+        compiler: {
+          addDependency() {},
+        },
+      };
+
+      if (loader.bun?.load) {
+        return loader.bun.load(readFileSync(filePath).toString(), input);
+      }
+
+      const result = loader.load(input);
+      if (result instanceof Promise) {
+        return result.then(toResult);
+      }
+      return toResult(result);
+    });
   };
 }

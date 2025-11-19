@@ -1,12 +1,11 @@
-import { type FileInfo, getSlugs, parseFilePath } from '@/source';
 import type { LoaderPlugin } from '@/source/plugins';
-import { basename, extname } from '@/source/path';
+import { basename, dirname, extname } from '@/source/path';
 
 /**
  * Generate slugs for pages if missing
  */
 export function slugsPlugin(
-  slugsFn?: (info: FileInfo) => string[],
+  slugsFn?: (info: { path: string }) => string[],
 ): LoaderPlugin {
   function isIndex(file: string) {
     return basename(file, extname(file)) === 'index';
@@ -29,7 +28,7 @@ export function slugsPlugin(
           continue;
         }
 
-        file.slugs = slugsFn ? slugsFn(parseFilePath(path)) : getSlugs(path);
+        file.slugs = slugsFn ? slugsFn({ path }) : getSlugs(path);
 
         const key = file.slugs.join('/');
         if (taken.has(key)) throw new Error('Duplicated slugs');
@@ -45,4 +44,29 @@ export function slugsPlugin(
       }
     },
   };
+}
+
+const GroupRegex = /^\(.+\)$/;
+
+/**
+ * Convert file path into slugs, also encode non-ASCII characters, so they can work in pathname
+ */
+export function getSlugs(file: string): string[] {
+  const dir = dirname(file);
+  const name = basename(file, extname(file));
+  const slugs: string[] = [];
+
+  for (const seg of dir.split('/')) {
+    // filter empty names and file groups like (group_name)
+    if (seg.length > 0 && !GroupRegex.test(seg)) slugs.push(encodeURI(seg));
+  }
+
+  if (GroupRegex.test(name))
+    throw new Error(`Cannot use folder group in file names: ${file}`);
+
+  if (name !== 'index') {
+    slugs.push(encodeURI(name));
+  }
+
+  return slugs;
 }

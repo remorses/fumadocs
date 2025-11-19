@@ -1,5 +1,179 @@
 # next-docs-ui
 
+## 16.0.14
+
+### Patch Changes
+
+- Updated dependencies [c3b8474]
+  - fumadocs-core@16.0.14
+
+## 16.0.13
+
+### Patch Changes
+
+- 88dae4d: Reduce `px` usage
+  - fumadocs-core@16.0.13
+
+## 16.0.12
+
+### Patch Changes
+
+- Updated dependencies [c5c00e9]
+  - fumadocs-core@16.0.12
+
+## 16.0.11
+
+### Patch Changes
+
+- 00058c8: Drop framework-side `createContext`
+- Updated dependencies [ff68f69]
+- Updated dependencies [00058c8]
+  - fumadocs-core@16.0.11
+
+## 16.0.10
+
+### Patch Changes
+
+- 112e8d9: Support `CalloutContainer`, `CalloutTitle` and `CalloutDescription` components.
+
+  They're now MDX components included by default.
+
+- Updated dependencies [733b01e]
+  - fumadocs-core@16.0.10
+
+## 16.0.9
+
+### Patch Changes
+
+- 2eef888: Remove unnecessary `aria-label` from the link icon in headings
+  - fumadocs-core@16.0.9
+
+## 16.0.8
+
+### Patch Changes
+
+- c0df2c4: improve navbar button gaps
+- 117ad86: Add support for using a custom GitHub API base URL
+- Updated dependencies [bc97236]
+- Updated dependencies [ca09b6a]
+- Updated dependencies [117ad86]
+  - fumadocs-core@16.0.8
+
+## 16.0.7
+
+### Patch Changes
+
+- Updated dependencies [f97cd1e]
+- Updated dependencies [f7e15e2]
+  - fumadocs-core@16.0.7
+
+## 16.0.6
+
+### Patch Changes
+
+- Updated dependencies [b95b0cf]
+  - fumadocs-core@16.0.6
+
+## 16.0.5
+
+### Patch Changes
+
+- Updated dependencies [8221785]
+  - fumadocs-core@16.0.5
+
+## 16.0.4
+
+### Patch Changes
+
+- Updated dependencies [99971c7]
+  - fumadocs-core@16.0.4
+
+## 16.0.3
+
+### Patch Changes
+
+- fumadocs-core@16.0.3
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies [d511232]
+  - fumadocs-core@16.0.2
+
+## 16.0.1
+
+### Patch Changes
+
+- 45f0c1f: hotfix `<DynamicCodeBlock />` Vite + React 19.2 compat issues
+- Updated dependencies [45f0c1f]
+  - fumadocs-core@16.0.1
+
+## 16.0.0
+
+### Major Changes
+
+- 0ed0ca6: **Change `--fd-layout-width` to `1600px` by default**
+
+  This will change the max layout width to `1600px`, you can still change it back with:
+
+  ```css
+  :root {
+    --fd-layout-width: 100vw;
+  }
+  ```
+
+- 5210f18: **Set minimal React.js version to 19.2.0**
+
+  19.2 has multiple crucial updates that can improve Fumadocs' performance, and it should works seamlessly on mainstream React.js frameworks.
+
+  As a consequence, Next.js 16 is now the minimal version when using Fumadocs UI because Next.js always uses the internal canary version of React.js.
+
+- 42f09c3: **Remove deprecated APIs**
+  - `fumadocs-ui/page`:
+    - removed `<DocsCategory />`.
+    - removed `breadcrumbs.full` option from `<DocsPage />`.
+  - `fumadocs-core/search/algolia`: renamed option `document` to `indexName`.
+  - `fumadocs-core/search`:
+    - remove deprecated signature of `createFromSource()`: migrate to newer usage instead.
+      ```ts
+      export function createFromSource<S extends LoaderOutput<LoaderConfig>>(
+        source: S,
+        pageToIndexFn?: (page: InferPageType<S>) => Awaitable<AdvancedIndex>,
+        options?: Omit<Options<S>, 'buildIndex'>,
+      ): SearchAPI;
+      ```
+    - remove deprecated parameters in `useSearch()`, pass them in the client object instead.
+  - `fumadocs-core/highlight`: remove deprecated `withPrerenderScript` and `loading` options from `useShiki()`.
+  - `fumadocs-core/i18n`: removed `createI18nMiddleware`, import from `fumadocs-core/i18n/middleware` instead.
+  - `fumadocs-core/source`:
+    - removed deprecated `transformers`, `pageTree.attach*` options from `loader()`.
+    - removed deprecated `page.file` property.
+    - removed `FileInfo` & `parseFilePath` utilities.
+
+### Patch Changes
+
+- 1494340: Drop `fumadocs-core/hide-if-empty` usage, prefer user-side component overrides for precise control
+- de0ce6d: Add a `toc-title` ID to the table of contents heading for styling purposes
+- 5966e23: Fix root toggle overflow
+- Updated dependencies [230c6bf]
+- Updated dependencies [851897c]
+- Updated dependencies [4049ccc]
+- Updated dependencies [429c41a]
+- Updated dependencies [5210f18]
+- Updated dependencies [cbc93e9]
+- Updated dependencies [42f09c3]
+- Updated dependencies [55afd8a]
+  - fumadocs-core@16.0.0
+
+## 15.8.4
+
+### Patch Changes
+
+- Updated dependencies [ce2be59]
+- Updated dependencies [31b9494]
+  - fumadocs-core@15.8.4
+
 ## 15.8.3
 
 ### Patch Changes

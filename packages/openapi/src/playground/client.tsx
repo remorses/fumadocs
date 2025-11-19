@@ -4,27 +4,33 @@ import {
   Fragment,
   type HTMLAttributes,
   lazy,
-  type ReactElement,
   type ReactNode,
   useEffect,
   useMemo,
   useState,
+  useEffectEvent,
 } from 'react';
 import type {
-  ControllerFieldState,
-  ControllerRenderProps,
   FieldPath,
-  UseFormStateReturn,
+  UseControllerProps,
+  UseControllerReturn,
 } from 'react-hook-form';
 import {
-  Controller,
   FormProvider,
+  get,
+  set,
+  useController,
   useForm,
   useFormContext,
 } from 'react-hook-form';
-import { useApiContext, useServerSelectContext } from '@/ui/contexts/api';
+import { useApiContext } from '@/ui/contexts/api';
 import type { FetchResult } from '@/playground/fetcher';
-import { FieldInput, FieldSet, JsonInput, ObjectInput } from './inputs';
+import {
+  FieldInput,
+  FieldSet,
+  JsonInput,
+  ObjectInput,
+} from './components/inputs';
 import type {
   ParameterField,
   RequestSchema,
@@ -46,7 +52,7 @@ import {
   CollapsibleTrigger,
 } from 'fumadocs-ui/components/ui/collapsible';
 import { ChevronDown, LoaderCircle } from 'lucide-react';
-import { encodeRequestData, type RequestData } from '@/requests/_shared';
+import { encodeRequestData } from '@/requests/media/encode';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { cn } from 'fumadocs-ui/utils/cn';
 import {
@@ -54,12 +60,7 @@ import {
   SchemaProvider,
   useResolvedSchema,
 } from '@/playground/schema';
-import {
-  useRequestDataUpdater,
-  useRequestInitialData,
-} from '@/ui/contexts/code-example';
-import { useEffectEvent } from 'fumadocs-core/utils/use-effect-event';
-import { useOnChange } from 'fumadocs-core/utils/use-on-change';
+import { useOperationContext } from '@/ui/contexts/operation';
 import {
   Select,
   SelectContent,
@@ -69,30 +70,24 @@ import {
 } from '@/ui/components/select';
 import { labelVariants } from '@/ui/components/input';
 import type { ParsedSchema } from '@/utils/schema';
+import type { RequestData } from '@/requests/types';
+import ServerSelect from './components/server-select';
+import { useStorageKey } from '@/ui/client/storage-key';
 
-interface FormValues {
+export interface FormValues {
   path: Record<string, unknown>;
   query: Record<string, unknown>;
   header: Record<string, unknown>;
   cookie: Record<string, unknown>;
   body: unknown;
 
+  /**
+   * Store the cached encoded request data, do not modify it.
+   */
   _encoded?: RequestData;
 }
 
-export interface CustomField<TName extends FieldPath<FormValues>, Info> {
-  render: (props: {
-    /**
-     * Field Info
-     */
-    info: Info;
-    field: ControllerRenderProps<FormValues, TName>;
-    fieldState: ControllerFieldState;
-    formState: UseFormStateReturn<FormValues>;
-  }) => ReactElement;
-}
-
-export interface ClientProps extends HTMLAttributes<HTMLFormElement> {
+export interface PlaygroundClientProps extends HTMLAttributes<HTMLFormElement> {
   route: string;
   method: string;
   parameters?: ParameterField[];
@@ -106,76 +101,116 @@ export interface ClientProps extends HTMLAttributes<HTMLFormElement> {
    */
   references: Record<string, RequestSchema>;
   proxyUrl?: string;
+}
+
+export interface PlaygroundClientOptions {
+  /**
+   * transform fields for auth-specific parameters (e.g. header)
+   */
+  transformAuthInputs?: (fields: AuthField[]) => AuthField[];
 
   /**
    * Request timeout in seconds (default: 10s)
    */
   requestTimeout?: number;
-  fields?: {
-    parameter?: CustomField<
-      `${ParameterField['in']}.${string}`,
-      ParameterField
-    >;
-    auth?: CustomField<FieldPath<FormValues>, RequestSchema>;
-    body?: CustomField<'body', RequestSchema>;
-  };
 
   components?: Partial<{
     ResultDisplay: FC<{ data: FetchResult }>;
   }>;
+
+  /**
+   * render the paremeter inputs of API endpoint.
+   *
+   * It uses `react-hook-form`, you can use either:
+   * - the library itself, with types from `fumadocs-openapi/playground/client`.
+   * - the `Custom.useController()` from `fumadocs-openapi/playground/client`.
+   *
+   * Recommended types packages: `json-schema-typed`, `openapi-types`.
+   */
+  renderParameterField?: (
+    fieldName: FieldPath<FormValues>,
+    param: ParameterField,
+  ) => ReactNode;
+
+  /**
+   * render the input for API endpoint body.
+   *
+   * @see renderParameterField for customisation tips
+   */
+  renderBodyField?: (
+    fieldName: 'body',
+    info: {
+      schema: RequestSchema;
+      mediaType: string;
+    },
+  ) => ReactNode;
 }
 
-const AuthPrefix = '__fumadocs_auth';
-
-const ServerSelect = lazy(() => import('@/ui/server-select'));
 const OauthDialog = lazy(() =>
-  import('./auth/oauth-dialog').then((mod) => ({
+  import('./components/oauth-dialog').then((mod) => ({
     default: mod.OauthDialog,
   })),
 );
 const OauthDialogTrigger = lazy(() =>
-  import('./auth/oauth-dialog').then((mod) => ({
+  import('./components/oauth-dialog').then((mod) => ({
     default: mod.OauthDialogTrigger,
   })),
 );
 
-export default function Client({
+export default function PlaygroundClient({
   route,
   method = 'GET',
   securities,
   parameters = [],
   body,
-  fields,
   references,
   proxyUrl,
-  components: { ResultDisplay = DefaultResultDisplay } = {},
-  requestTimeout = 10,
   ...rest
-}: ClientProps) {
-  const { server } = useServerSelectContext();
-  const requestData = useRequestInitialData();
-  const updater = useRequestDataUpdater();
+}: PlaygroundClientProps) {
+  const {
+    example: exampleId,
+    examples,
+    setExampleData,
+  } = useOperationContext();
+  const storageKeys = useStorageKey();
   const fieldInfoMap = useMemo(() => new Map<string, FieldInfo>(), []);
-  const { mediaAdapters } = useApiContext();
+  const {
+    mediaAdapters,
+    serverRef,
+    client: {
+      playground: {
+        components: { ResultDisplay = DefaultResultDisplay } = {},
+        requestTimeout = 10,
+        transformAuthInputs,
+      } = {},
+    },
+  } = useApiContext();
   const [securityId, setSecurityId] = useState(0);
-  const { inputs, mapInputs } = useAuthInputs(securities[securityId]);
-
-  const defaultValues: FormValues = useMemo(
-    () => ({
-      path: requestData.path,
-      query: requestData.query,
-      header: requestData.header,
-      body: requestData.body,
-      cookie: requestData.cookie,
-    }),
-    [requestData],
+  const { inputs, mapInputs, initAuthValues } = useAuthInputs(
+    securities[securityId],
+    transformAuthInputs,
   );
+
+  const defaultValues: FormValues = useMemo(() => {
+    const requestData = examples.find(
+      (example) => example.id === exampleId,
+    )?.data;
+
+    return {
+      path: requestData?.path ?? {},
+      query: requestData?.query ?? {},
+      header: requestData?.header ?? {},
+      body: requestData?.body ?? {},
+      cookie: requestData?.cookie ?? {},
+    };
+  }, [examples, exampleId]);
 
   const form = useForm<FormValues>({
     defaultValues,
   });
 
   const testQuery = useQuery(async (input: FormValues) => {
+    const targetServer = serverRef.current;
     const fetcher = await import('./fetcher').then((mod) =>
       mod.createBrowserFetcher(mediaAdapters, requestTimeout),
     );
@@ -189,7 +224,9 @@ export default function Client({
     return fetcher.fetch(
       joinURL(
         withBase(
-          server ? resolveServerUrl(server.url, server.variables) : '/',
+          targetServer
+            ? resolveServerUrl(targetServer.url, targetServer.variables)
+            : '/',
           window.location.origin,
         ),
         resolveRequestData(route, input._encoded),
@@ -201,51 +238,13 @@ export default function Client({
     );
   });
 
-  function initAuthValues(values: FormValues, inputs: AuthField[]) {
-    for (const item of inputs) {
-      manipulateValues(values, item.fieldName, () => {
-        const stored = localStorage.getItem(AuthPrefix + item.original.id);
-
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (typeof parsed === typeof item.defaultValue) return parsed;
-        }
-
-        return item.defaultValue;
-      });
-    }
-
-    return values;
-  }
-
-  useOnChange(defaultValues, () => {
-    fieldInfoMap.clear();
-    form.reset(initAuthValues(defaultValues, inputs));
-  });
-
-  useOnChange(inputs, (current, previous) => {
-    form.reset((values) => {
-      for (const item of previous) {
-        if (current.some(({ original }) => original.id === item.original.id)) {
-          continue;
-        }
-
-        manipulateValues(values, item.fieldName, () => undefined);
-      }
-
-      return initAuthValues(values, current);
-    });
-  });
-
   const onUpdateDebounced = useEffectEvent((values: FormValues) => {
     for (const item of inputs) {
-      const value = item.fieldName
-        .split('.')
-        .reduce((v, seg) => v[seg as keyof object], values as object);
+      const value = get(values, item.fieldName);
 
       if (value) {
         localStorage.setItem(
-          AuthPrefix + item.original.id,
+          storageKeys.AuthField(item),
           JSON.stringify(value),
         );
       }
@@ -257,7 +256,7 @@ export default function Client({
       bodyMediaType: body?.mediaType,
     };
     values._encoded ??= encodeRequestData(data, mediaAdapters, parameters);
-    updater.setData(data, values._encoded);
+    setExampleData(data, values._encoded);
   });
 
   useEffect(() => {
@@ -278,11 +277,32 @@ export default function Client({
         );
       },
     });
-    form.reset((values) => initAuthValues(values, inputs));
 
     return () => subscription();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- mounted once only
   }, []);
+
+  useEffect(() => {
+    form.reset(initAuthValues(defaultValues));
+
+    return () => fieldInfoMap.clear();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- ignore other parts
+  }, [defaultValues]);
+
+  useEffect(() => {
+    form.reset((values) => initAuthValues(values));
+
+    return () => {
+      form.reset((values) => {
+        for (const item of inputs) {
+          set(values, item.fieldName, undefined);
+        }
+
+        return values;
+      });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- ignore other parts
+  }, [inputs]);
 
   const onSubmit = form.handleSubmit((value) => {
     testQuery.start(mapInputs(value));
@@ -300,14 +320,14 @@ export default function Client({
           onSubmit={onSubmit}
         >
           <ServerSelect />
-          <div className="flex flex-row items-center gap-2 text-sm p-3 pb-0">
+          <div className="flex flex-row items-center gap-2 text-sm p-3 not-last:pb-0">
             <MethodLabel>{method}</MethodLabel>
             <Route route={route} className="flex-1" />
             <button
               type="submit"
               className={cn(
                 buttonVariants({ color: 'primary', size: 'sm' }),
-                'px-3 py-1.5',
+                'w-14 py-1.5',
               )}
               disabled={testQuery.isLoading}
             >
@@ -330,7 +350,7 @@ export default function Client({
               ))}
             </SecurityTabs>
           )}
-          <FormBody body={body} fields={fields} parameters={parameters} />
+          <FormBody body={body} parameters={parameters} />
           {testQuery.data ? <ResultDisplay data={testQuery.data} /> : null}
         </form>
       </SchemaProvider>
@@ -412,9 +432,10 @@ const ParamTypes = ['path', 'header', 'cookie', 'query'] as const;
 
 function FormBody({
   parameters = [],
-  fields = {},
   body,
-}: Pick<ClientProps, 'parameters' | 'body' | 'fields'>) {
+}: Pick<PlaygroundClientProps, 'parameters' | 'body'>) {
+  const { renderParameterField, renderBodyField } =
+    useApiContext().client.playground ?? {};
   const panels = useMemo(() => {
     return ParamTypes.map((type) => {
       const items = parameters.filter((v) => v.in === type);
@@ -434,20 +455,15 @@ function FormBody({
         >
           {items.map((field) => {
             const fieldName = `${type}.${field.name}` as const;
+            if (renderParameterField) {
+              return renderParameterField(fieldName, field);
+            }
+
             const schema = (
               field.content
                 ? field.content[Object.keys(field.content)[0]].schema
                 : field.schema
             ) as ParsedSchema;
-
-            if (fields?.parameter) {
-              return renderCustomField(
-                fieldName,
-                schema,
-                fields.parameter,
-                field.name,
-              );
-            }
 
             return (
               <FieldSet
@@ -461,15 +477,15 @@ function FormBody({
         </CollapsiblePanel>
       );
     });
-  }, [fields.parameter, parameters]);
+  }, [parameters, renderParameterField]);
 
   return (
     <>
       {panels}
       {body && (
         <CollapsiblePanel title="Body">
-          {fields.body ? (
-            renderCustomField('body', body.schema, fields.body)
+          {renderBodyField ? (
+            renderBodyField('body', body)
           ) : (
             <BodyInput field={body.schema} />
           )}
@@ -530,55 +546,21 @@ function BodyInput({ field: _field }: { field: RequestSchema }) {
   );
 }
 
-interface AuthField {
+export interface AuthField {
   fieldName: string;
   defaultValue: unknown;
 
-  original: SecurityEntry;
+  original?: SecurityEntry;
   children: ReactNode;
 
   mapOutput?: (values: unknown) => unknown;
 }
 
-/**
- * manipulate values without mutating the original object
- *
- * @returns a new manipulated object
- */
-function manipulateValues<T extends object>(
-  values: T,
-  fieldName: string,
-  update: (v: unknown) => unknown,
-  clone = false,
-): T {
-  const root = clone ? { ...values } : values;
-  let current = root as Record<string, unknown>;
-  const segments = fieldName.split('.');
-
-  for (let i = 0; i < segments.length; i++) {
-    const segment = segments[i];
-
-    if (i !== segments.length - 1) {
-      let v = current[segment] as Record<string, unknown>;
-      if (clone) v = { ...v };
-
-      current[segment] = v;
-      current = v;
-      continue;
-    }
-
-    const updated = update(current[segment]);
-    if (updated === undefined) {
-      delete current[segment];
-    } else {
-      current[segment] = updated;
-    }
-  }
-
-  return root;
-}
-
-function useAuthInputs(securities?: SecurityEntry[]) {
+function useAuthInputs(
+  securities?: SecurityEntry[],
+  transform?: (fields: AuthField[]) => AuthField[],
+) {
+  const storageKeys = useStorageKey();
   const inputs = useMemo(() => {
     const result: AuthField[] = [];
     if (!securities) return result;
@@ -719,36 +701,40 @@ function useAuthInputs(securities?: SecurityEntry[]) {
       }
     }
 
-    return result;
-  }, [securities]);
+    return transform ? transform(result) : result;
+  }, [securities, transform]);
 
   const mapInputs = (values: FormValues) => {
+    const cloned = structuredClone(values);
+
     for (const item of inputs) {
       if (!item.mapOutput) continue;
 
-      values = manipulateValues(values, item.fieldName, item.mapOutput, true);
+      set(cloned, item.fieldName, item.mapOutput(get(cloned, item.fieldName)));
+    }
+
+    return cloned;
+  };
+
+  const initAuthValues = (values: FormValues) => {
+    for (const item of inputs) {
+      const stored = localStorage.getItem(storageKeys.AuthField(item));
+
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (typeof parsed === typeof item.defaultValue) {
+          set(values, item.fieldName, parsed);
+          continue;
+        }
+      }
+
+      set(values, item.fieldName, item.defaultValue);
     }
 
     return values;
   };
 
-  return { inputs, mapInputs };
-}
-
-function renderCustomField(
-  fieldName: string,
-  info: RequestSchema & { name?: string },
-  field: CustomField<never, never>,
-  key?: string,
-) {
-  return (
-    <Controller
-      key={key}
-      // @ts-expect-error we use string here
-      render={(props) => field.render({ ...props, info })}
-      name={fieldName}
-    />
-  );
+  return { inputs, mapInputs, initAuthValues };
 }
 
 function Route({
@@ -788,7 +774,7 @@ function DefaultResultDisplay({ data }: { data: FetchResult }) {
         {statusInfo.description}
       </div>
       <p className="text-sm text-fd-muted-foreground">{data.status}</p>
-      {data.data ? (
+      {data.data !== undefined && (
         <DynamicCodeBlock
           lang={
             typeof data.data === 'string' && data.data.length > 50000
@@ -802,7 +788,7 @@ function DefaultResultDisplay({ data }: { data: FetchResult }) {
           }
           options={shikiOptions}
         />
-      ) : null}
+      )}
     </div>
   );
 }
@@ -826,3 +812,15 @@ function CollapsiblePanel({
     </Collapsible>
   );
 }
+
+// exports for customisations
+export const Custom = {
+  useController<
+    TName extends FieldPath<FormValues> = FieldPath<FormValues>,
+    TTransformedValues = FormValues,
+  >(
+    props: UseControllerProps<FormValues, TName, TTransformedValues>,
+  ): UseControllerReturn<FormValues, TName> {
+    return useController<FormValues, TName, TTransformedValues>(props);
+  },
+};

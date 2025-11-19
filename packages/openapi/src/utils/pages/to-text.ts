@@ -1,9 +1,5 @@
 import { idToTitle } from '@/utils/id-to-title';
-import type {
-  ApiPageProps,
-  OperationItem,
-  WebhookItem,
-} from '@/render/api-page';
+import type { ApiPageProps, OperationItem, WebhookItem } from '@/ui/api-page';
 import type { ProcessedDocument } from '@/utils/process-document';
 import type { TableOfContents } from 'fumadocs-core/toc';
 import type { StructuredData } from 'fumadocs-core/mdx-plugins';
@@ -12,7 +8,7 @@ import { dump } from 'js-yaml';
 import type { NoReference } from '@/utils/schema';
 import Slugger from 'github-slugger';
 import { removeUndefined } from '@/utils/remove-undefined';
-import type { OutputEntry } from '@/utils/schema-to-pages';
+import type { OutputEntry } from '@/utils/pages/builder';
 
 export interface PagesToTextOptions {
   /**
@@ -76,7 +72,7 @@ export function toText(
           type: 'operation',
         },
       );
-    case 'schema':
+    case 'group':
       return generatePage(
         entry.schemaId,
         processed,

@@ -1,28 +1,24 @@
 import { expect, test } from 'vitest';
-import { createGetUrl, getSlugs, loader } from '@/source/loader';
-import { parseFilePath } from '@/source';
+import { createGetUrl, getSlugs, loader } from '@/source';
 import type { ReactElement } from 'react';
 import { removeUndefined } from '@/utils/remove-undefined';
 
 test('get slugs', () => {
-  expect(getSlugs(parseFilePath('index.mdx'))).toStrictEqual([]);
-  expect(getSlugs(parseFilePath('page.mdx'))).toStrictEqual(['page']);
+  expect(getSlugs('index.mdx')).toStrictEqual([]);
+  expect(getSlugs('page.mdx')).toStrictEqual(['page']);
 
-  expect(getSlugs(parseFilePath('nested/index.mdx'))).toStrictEqual(['nested']);
-  expect(getSlugs(parseFilePath('nested/page.mdx'))).toStrictEqual([
-    'nested',
-    'page',
-  ]);
+  expect(getSlugs('nested/index.mdx')).toStrictEqual(['nested']);
+  expect(getSlugs('nested/page.mdx')).toStrictEqual(['nested', 'page']);
 });
 
 test('get slugs: folder groups', () => {
-  expect(getSlugs(parseFilePath('(nested)/index.mdx'))).toStrictEqual([]);
-  expect(getSlugs(parseFilePath('folder/(nested)/page.mdx'))).toStrictEqual([
+  expect(getSlugs('(nested)/index.mdx')).toStrictEqual([]);
+  expect(getSlugs('folder/(nested)/page.mdx')).toStrictEqual([
     'folder',
     'page',
   ]);
 
-  expect(() => getSlugs(parseFilePath('nested/(page).mdx'))).toThrowError();
+  expect(() => getSlugs('nested/(page).mdx')).toThrowError();
 });
 
 test('Get URL: Empty', () => {
@@ -174,16 +170,16 @@ test('Loader: Without meta.json', () => {
         "$id": "root",
         "children": [
           {
-            "$id": "test.mdx",
+            "$id": "root:test.mdx",
             "name": "Hello",
             "type": "page",
             "url": "/test",
           },
           {
-            "$id": "hello",
+            "$id": "root:hello",
             "children": [],
             "index": {
-              "$id": "hello/index.mdx",
+              "$id": "root:hello/index.mdx",
               "name": "Hello",
               "type": "page",
               "url": "/hello",
@@ -236,13 +232,13 @@ test('Loader: Rest operator', () => {
         "$id": "root",
         "children": [
           {
-            "$id": "2-2.mdx",
+            "$id": "root:2-2.mdx",
             "name": "2.2",
             "type": "page",
             "url": "/2-2",
           },
           {
-            "$id": "1-2.mdx",
+            "$id": "root:1-2.mdx",
             "name": "1.2",
             "type": "page",
             "url": "/1-2",
@@ -288,9 +284,9 @@ test('Loader: Allow duplicate pages when explicitly referenced twice', () => {
 
   const treeChildren = result.pageTree.children;
   expect(treeChildren.length).toBe(3);
-  expect(treeChildren[0].$id).toBe('page1.mdx');
-  expect(treeChildren[1].$id).toBe('page1.mdx');
-  expect(treeChildren[2].$id).toBe('page2.mdx');
+  expect(treeChildren[0].$id).toBe('root:page1.mdx');
+  expect(treeChildren[1].$id).toBe('root:page1.mdx');
+  expect(treeChildren[2].$id).toBe('root:page2.mdx');
 });
 
 test('Loader: No duplicate pages when referencing subfolder items and folder', () => {
@@ -380,34 +376,34 @@ test('Loader: No duplicate pages when referencing subfolder items and folder', (
         "$id": "root",
         "children": [
           {
-            "$id": "index.mdx",
+            "$id": "root:index.mdx",
             "name": "Home",
             "type": "page",
             "url": "/",
           },
           {
-            "$id": "subfolder/page1.mdx",
+            "$id": "root:subfolder/page1.mdx",
             "name": "Subfolder Page 1",
             "type": "page",
             "url": "/subfolder/page1",
           },
           {
-            "$id": "subfolder/page2.mdx",
+            "$id": "root:subfolder/page2.mdx",
             "name": "Subfolder Page 2",
             "type": "page",
             "url": "/subfolder/page2",
           },
           {
-            "$id": "other-page.mdx",
+            "$id": "root:other-page.mdx",
             "name": "Other Page",
             "type": "page",
             "url": "/other-page",
           },
           {
-            "$id": "subfolder",
+            "$id": "root:subfolder",
             "children": [
               {
-                "$id": "subfolder/page3.mdx",
+                "$id": "root:subfolder/page3.mdx",
                 "name": "Subfolder Page 3",
                 "type": "page",
                 "url": "/subfolder/page3",
