@@ -86,11 +86,11 @@ export default async function mdx(
     async transform(value, id) {
       try {
         if (metaLoader.filter(id)) {
-          return await metaLoader.transform.call(this, value, id);
+          return await metaLoader.transform.call(this as any, value, id);
         }
 
         if (mdxLoader.filter(id)) {
-          return await mdxLoader.transform.call(this, value, id);
+          return await mdxLoader.transform.call(this as any, value, id);
         }
       } catch (e) {
         if (e instanceof ValidationError) {

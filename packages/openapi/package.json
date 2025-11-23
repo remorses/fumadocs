@@ -1,6 +1,6 @@
 {
   "name": "fumadocs-openapi",
-  "version": "10.0.9",
+  "version": "10.0.11",
   "description": "Generate MDX docs for your OpenAPI spec",
   "keywords": [
     "NextJs",
@@ -40,6 +40,10 @@
     "./server": {
       "import": "./dist/server/index.js",
       "types": "./dist/server/index.d.ts"
+    },
+    "./*": {
+      "import": "./dist/*.js",
+      "types": "./dist/*.d.ts"
     }
   },
   "main": "./dist/index.js",
@@ -62,6 +66,7 @@
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.4",
     "@scalar/json-magic": "^0.8.1",
+    "ai": "^4.3.16",
     "@scalar/openapi-parser": "0.23.2",
     "ajv": "^8.17.1",
     "class-variance-authority": "^0.7.1",

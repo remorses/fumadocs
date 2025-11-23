@@ -8,10 +8,10 @@ import {
 } from '@tanstack/react-router';
 
 const framework: Framework = {
-  Link({ href, prefetch = true, ...props }) {
+  Link({ href, prefetch = true, children, ref: _, ...props }) {
     return (
       <Link to={href} preload={prefetch ? 'intent' : false} {...props}>
-        {props.children}
+        {children}
       </Link>
     );
   },

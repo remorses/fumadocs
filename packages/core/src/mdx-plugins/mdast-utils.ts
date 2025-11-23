@@ -42,5 +42,5 @@ export function toMdxExport(name: string, value: unknown): RootContent {
         ],
       },
     },
-  };
+  } as unknown as RootContent;
 }

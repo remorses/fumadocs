@@ -25,5 +25,6 @@ export default defineConfig({
     'src/mdx-plugins/remark-*.ts',
     'src/mdx-plugins/rehype-*.ts',
     'src/framework/*',
+    'src/mdx-plugins/*',
   ],
 });

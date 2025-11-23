@@ -84,12 +84,14 @@ export async function Operation({
   const contentTypes = body ? Object.entries(body.content) : null;
 
   if (body && contentTypes && contentTypes.length > 0) {
+    const [defaultValue] = contentTypes[0];
+
     bodyNode = (
-      <SelectTabs defaultValue={contentTypes[0][0]}>
+      <SelectTabs defaultValue={defaultValue}>
         <div className="flex gap-2 items-end justify-between">
           {ctx.renderHeading(headingLevel, 'Request Body')}
           <SelectTabTrigger
-            items={contentTypes.map((v) => v[0])}
+            items={contentTypes.map(([key]) => key)}
             className="mb-4"
           />
         </div>
@@ -126,9 +128,12 @@ export async function Operation({
 
         <Accordions type="multiple">
           {statuses.map((status) => (
-            <AccordionItem key={status} value={status}>
-              <ResponseAccordion status={status} operation={method} ctx={ctx} />
-            </AccordionItem>
+            <ResponseAccordion
+              key={status}
+              status={status}
+              operation={method}
+              ctx={ctx}
+            />
           ))}
         </Accordions>
       </>
@@ -204,15 +209,16 @@ export async function Operation({
     );
   }
 
-  if (method.callbacks) {
-    const callbacks = Object.entries(method.callbacks);
+  const callbacks = method.callbacks ? Object.entries(method.callbacks) : null;
+  if (callbacks && callbacks.length > 0) {
+    const [defaultValue] = callbacks[0];
 
     callbacksNode = (
-      <SelectTabs defaultValue={callbacks[0][0]}>
+      <SelectTabs defaultValue={defaultValue}>
         <div className="flex justify-between gap-2 items-end">
           {ctx.renderHeading(headingLevel, 'Callbacks')}
           <SelectTabTrigger
-            items={callbacks.map((v) => v[0])}
+            items={callbacks.map(([key]) => key)}
             className="mb-4"
           />
         </div>
@@ -326,28 +332,35 @@ async function ResponseAccordion({
   const response = operation.responses![status];
   const { generateTypeScriptSchema } = ctx;
   const contentTypes = response.content ? Object.entries(response.content) : [];
+  let wrapper = (children: ReactNode) => children;
+  let selectorNode: ReactNode = null;
 
-  return (
-    <SelectTabs defaultValue={contentTypes.at(0)?.[0]}>
+  if (contentTypes.length > 0) {
+    const [defaultValue] = contentTypes[0];
+    selectorNode =
+      contentTypes.length === 1 ? (
+        <p className="text-sm text-fd-muted-foreground">{defaultValue}</p>
+      ) : (
+        <SelectTabTrigger items={contentTypes.map(([key]) => key)} />
+      );
+    wrapper = (children) => (
+      <SelectTabs defaultValue={defaultValue}>{children}</SelectTabs>
+    );
+  }
+
+  return wrapper(
+    <AccordionItem value={status}>
       <AccordionHeader>
         <AccordionTrigger className="font-mono">{status}</AccordionTrigger>
-        {contentTypes.length > 1 && (
-          <SelectTabTrigger items={contentTypes.map((v) => v[0])} />
-        )}
-        {contentTypes.length === 1 && (
-          <p className="text-sm text-fd-muted-foreground">
-            {contentTypes[0][0]}
-          </p>
-        )}
+        {selectorNode}
       </AccordionHeader>
-
       <AccordionContent className="ps-4.5">
         {response.description && (
           <div className="prose-no-margin">
             {ctx.renderMarkdown(response.description)}
           </div>
         )}
-        {contentTypes?.map(async ([type, resType]) => {
+        {contentTypes.map(async ([type, resType]) => {
           const schema = resType.schema;
           let ts: string | undefined;
 
@@ -375,7 +388,7 @@ async function ResponseAccordion({
           );
         })}
       </AccordionContent>
-    </SelectTabs>
+    </AccordionItem>,
   );
 }
 

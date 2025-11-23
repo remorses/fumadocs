@@ -71,7 +71,7 @@ export const defaultAdapters = {
   },
   'application/xml': {
     encode(data) {
-      return js2xml(data.body as Record<string, unknown>, {
+      return js2xml.js2xml(data.body as Record<string, unknown>, {
         compact: true,
         spaces: 2,
       });

@@ -31,10 +31,10 @@ const framework: Framework = {
       [navigate, revalidator],
     );
   },
-  Link({ href, prefetch, ...props }) {
+  Link({ href, prefetch, children, ref: _, ...props }) {
     return (
       <Link to={href!} prefetch={prefetch ? 'intent' : 'none'} {...props}>
-        {props.children}
+        {children}
       </Link>
     );
   },

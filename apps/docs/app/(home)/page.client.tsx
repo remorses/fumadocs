@@ -67,7 +67,7 @@ export function Hero() {
           speed={visible ? 1 : 0}
           shape="corners"
           minPixelRatio={1}
-          maxPixelCount={1920 * 1080 * 2}
+          maxPixelCount={1920 * 1080}
         />
       )}
       {showShaders && (
@@ -80,9 +80,9 @@ export function Hero() {
           type="4x4"
           scale={0.5}
           size={3}
-          speed={visible ? 0.5 : 0}
-          rotation={270}
-          className="absolute max-lg:bottom-[-50%] max-lg:left-[-200px] animate-fd-fade-in duration-400 lg:top-[-5%] lg:right-0"
+          speed={0}
+          frame={5000 * 120}
+          className="absolute animate-fd-fade-in duration-400 max-lg:bottom-[-50%] max-lg:left-[-200px] lg:top-[-5%] lg:right-0"
           minPixelRatio={1}
         />
       )}
@@ -349,6 +349,7 @@ export function AgnosticBackground() {
         type="4x4"
         speed={visible ? 0.4 : 0}
         className="size-full"
+        minPixelRatio={1}
       />
     </div>
   );

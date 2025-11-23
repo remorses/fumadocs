@@ -7,7 +7,7 @@ import {
   type FC,
   Fragment,
   type ReactNode,
-  useContext,
+  use,
   useMemo,
   useRef,
   useState,
@@ -441,14 +441,14 @@ export function SidebarCollapseTrigger(props: ComponentProps<'button'>) {
 }
 
 function useFolderContext() {
-  const ctx = useContext(FolderContext);
+  const ctx = use(FolderContext);
   if (!ctx) throw new Error('Missing sidebar folder');
 
   return ctx;
 }
 
 function useInternalContext() {
-  const ctx = useContext(Context);
+  const ctx = use(Context);
   if (!ctx) throw new Error('<Sidebar /> component required.');
 
   return ctx;

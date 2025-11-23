@@ -86,7 +86,11 @@ export function SearchDialog({
   const [active, setActive] = useState<string | null>(null);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      modal={false}
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <Context.Provider
         value={useMemo(
           () => ({

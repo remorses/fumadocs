@@ -37,6 +37,11 @@ import * as JsxRuntime from 'react/jsx-runtime';
 import { CodeBlock, Pre } from 'fumadocs-ui/components/codeblock';
 import type { SchemaUIProps } from './schema/client';
 
+export function createRenders() {
+  return {};
+}
+
+export type Renderer = ReturnType<typeof createRenders>;
 type Awaitable<T> = T | Promise<T>;
 
 export interface CreateAPIPageOptions {

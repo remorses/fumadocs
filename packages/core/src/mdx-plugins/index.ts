@@ -1,6 +1,5 @@
 export * from './remark-gfm';
 export * from './rehype-code';
-export * from './remark-image';
 export * from './remark-structure';
 export * from './remark-heading';
 export * from './remark-admonition';
@@ -12,3 +11,4 @@ export * from './remark-npm';
 export * from './codeblock-utils';
 export * from './remark-mdx-files';
 export * from './remark-mdx-mermaid';
+export * from './remark-image';
